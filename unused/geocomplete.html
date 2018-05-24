@@ -1,0 +1,116 @@
+<div data-page="geocomplete" class="page">
+	<!-- Begin: Navbar -->
+	<div class="navbar">
+		<div class="navbar-inner">
+			<div class="left">
+				<a href="#" class="link icon-only back">
+					<i class="icon icon-back"></i>
+				</a>
+			</div>
+			<div class="center">Geocomplete</div>
+			<div class="right">
+				<a href="#" class="link icon-only open-popover" data-popover=".popover-geocomplete-info">
+					<i class="material-icons">info_outline</i>
+				</a>
+			</div>
+		</div>
+	</div>
+	<!-- End: Navbar -->
+
+	<!-- Begin: Page Content -->
+  <div class="page-content">
+
+		<div class="map-wrapper embed">
+			<div id="map" class="map embed-content"></div>
+		</div>
+	
+		<div class="list-block no-hairlines">
+			<ul>
+				<li>
+					<div class="item-content">
+						<div class="item-inner">
+							<div class="item-title label">Search</div>
+							<div class="item-input">
+								<input type="text" name="geocomplete-search" />
+							</div>
+						</div>
+					</div>
+				</li>
+			</ul>
+		</div>
+		
+		<div class="list-block geocomplete-details">
+			<ul>
+				<li>
+					<div class="item-content">
+						<div class="item-inner">
+							<div class="item-title">Latitude</div>
+							<div class="item-after" data-geo="lat"></div>
+						</div>
+					</div>
+				</li>
+				<li>
+					<div class="item-content">
+						<div class="item-inner">
+							<div class="item-title">Longitude</div>
+							<div class="item-after" data-geo="lng"></div>
+						</div>
+					</div>
+				</li>
+				<li>
+					<div class="item-content">
+						<div class="item-inner">
+							<div class="item-title">Village/Town/City</div>
+							<div class="item-after" data-geo="locality"></div>
+						</div>
+					</div>
+				</li>
+				<li>
+					<div class="item-content">
+						<div class="item-inner">
+							<div class="item-title">District/County</div>
+							<div class="item-after" data-geo="administrative_area_level_2"></div>
+						</div>
+					</div>
+				</li>
+				<li>
+					<div class="item-content">
+						<div class="item-inner">
+							<div class="item-title">State</div>
+							<div class="item-after" data-geo="administrative_area_level_1"></div>
+						</div>
+					</div>
+				</li>
+				<li>
+					<div class="item-content">
+						<div class="item-inner">
+							<div class="item-title">Country</div>
+							<div class="item-after" data-geo="country"></div>
+						</div>
+					</div>
+				</li>
+				<li>
+					<div class="item-content">
+						<div class="item-inner">
+							<div class="item-title">Postal Code</div>
+							<div class="item-after" data-geo="postal_code"></div>
+						</div>
+					</div>
+				</li>
+			</ul>
+		</div>
+			
+	</div>
+	<!-- End: Page Content -->
+
+	<!-- Begin: Popover -->
+	<div class="popover popover-geocomplete-info">
+    <div class="popover-inner">
+			<div class="content-block">
+				<p>Geocomplete component wraps the Google Maps' Geocoding and Places Autocomplete APIs, and helps you search for locations with an autocomplete dropdown.</p>
+			</div>
+		</div>
+  </div>
+	<!-- End: Popover -->
+	
+</div>

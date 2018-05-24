@@ -1,0 +1,165 @@
+<div class="page" data-page="relasi-capture">
+	<!-- Begin: Navbar -->
+	<div class="navbar">
+		<div class="navbar-inner">
+			<div class="left">
+				<a href="#" class="link icon-only back">
+					<i class="icon icon-back"></i>
+				</a>
+			</div>
+			<div class="center">Pindai Kode QR</div>
+		</div>
+	</div>
+	<!-- End: Navbar -->
+
+	<!-- Begin: Page Content -->
+	<div class="page-content">
+		<div class="item-content" style="padding: 16px;">
+			<div id="qrscan-webrtc">
+				<video id="preview" style="width: 100%; height: 100%; left: 0; position: absolute"></video>
+			</div>
+			<div id="qrscan-error">
+				<h3 align="center" style="font-weight: lighter">Jika kamera tidak terlihat, tekan tombol di kanan bawah.</h3>
+			</div>
+
+			<input type="file" capture="camera" accept="image/*" id="cameraInput" name="cameraInput" style="display: none">
+
+			<a onclick="$('#cameraInput').click()" class="floating-button">
+				<i class="material-icons">camera</i>
+			</a>
+		</div>
+	</div>
+	<!-- End: Page Content -->
+
+	<!-- Begin: Popup -->
+	<div class="popup tablet-fullscreen popup-profile-qrc profile">
+		<div class="toolbar">
+			<div class="toolbar-inner">
+				<div class="left" style="padding-left: 16px;">Detil Kontak</div>
+				<div class="right">
+					<a href="#" class="link close-popup">
+						<i class="material-icons">clear</i>
+					</a>
+				</div>
+			</div>
+		</div>
+		<div>
+			<div style="padding: 16px">
+				<p id="qrresult" class="qr-result" style="display: none;"></p>
+
+				<h2 style="margin: 0; font-weight: 500;" id="contact-name"></h2>
+				<h3 style="margin: 0; font-weight: 500;"><span id="contact-org"></span>, <b id="contact-uid"></b></h3>
+			</div>
+
+			<div class="list-block contact-info no-hairlines">
+				<ul>
+					<li>
+						<div class="item-content">
+							<div class="item-media">
+								<i class="material-icons color-blue">info_outline</i>
+							</div>
+							<div class="item-inner">
+								<div id="contact-cat"></div>
+							</div>
+						</div>
+					</li>
+					<li>
+						<div class="item-content">
+							<div class="item-media">
+								<i class="material-icons color-green">place</i>
+							</div>
+							<div class="item-inner">
+								<div>
+									<span id="contact-address"></span>
+								</div>
+							</div>
+						</div>
+					</li>
+					<li>
+						<div class="item-content">
+							<div class="item-media">
+								<i class="material-icons color-orange">local_phone</i>
+							</div>
+							<div class="item-inner">
+								<div class="item-title">
+									<a class="external" id="contact-mobile"></a>
+								</div>
+							</div>
+						</div>
+					</li>
+					<li>
+						<div class="item-content">
+							<div class="item-media">
+								<i class="material-icons color-pink">mail_outline</i>
+							</div>
+							<div class="item-inner">
+								<div class="item-title">
+									<a class="external" id="contact-email"></a>
+								</div>
+							</div>
+						</div>
+					</li>
+					<li>
+						<div class="item-content">
+							<div class="item-media">
+								<i class="fab fa-line fa-lg"></i>
+							</div>
+							<div class="item-inner">
+								<div class="item-title">
+									<a class="external" id="contact-line"></a>
+								</div>
+							</div>
+						</div>
+					</li>
+					<li>
+						<div class="item-content">
+							<div class="item-media">
+								<i class="fab fa-instagram fa-lg"></i>
+							</div>
+							<div class="item-inner">
+								<div class="item-title">
+									<a class="external" id="contact-instagram"></a>
+								</div>
+							</div>
+						</div>
+					</li>
+				</ul>
+			</div>
+			<div class="list-block">
+				<ul>
+					<li>
+						<a href="#" class="item-link" id="btn-add-relasi">
+							<div class="item-content">
+								<div class="item-media">
+								<span class="fa-stack">
+									<span class="fa fa-circle fa-stack-2x color-blue"></span>
+									<span class="fa fa-users fa-stack-1x fa-inverse"></span>
+								</span>
+								</div>
+								<div class="item-inner">
+									<div class="item-title">Tambahkan Relasi</div>
+								</div>
+							</div>
+						</a>
+					</li>
+					<li>
+						<a href="#" class="item-link external" id="btn-add-vcf" target="_blank">
+							<div class="item-content">
+								<div class="item-media">
+								<span class="fa-stack">
+									<span class="fa fa-circle fa-stack-2x color-green"></span>
+									<span class="fa fa-address-book fa-stack-1x fa-inverse"></span>
+								</span>
+								</div>
+								<div class="item-inner">
+									<div class="item-title">Tambahkan ke Kontak</div>
+								</div>
+							</div>
+						</a>
+					</li>
+				</ul>
+			</div>
+		</div>
+	</div>
+	<!-- End: Popup -->
+</div>

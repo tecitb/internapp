@@ -1,0 +1,325 @@
+<div data-page="checkout" class="page toolbar-fixed">
+	<!-- Begin: Navbar -->
+	<div class="navbar">
+		<div class="navbar-inner">
+			<div class="left">
+				<a href="#" class="link icon-only back">
+					<i class="icon icon-back"></i>
+				</a>
+			</div>
+			<div class="center">Checkout</div>
+			<div class="right">
+				<a href="cart.html" class="link icon-only" title="Cart">
+					<i class="fa fa-shopping-cart"></i>
+				</a>
+			</div>
+		</div>
+	</div>
+	<!-- End: Navbar -->
+
+	<!-- Begin: Toolbar -->
+	<div class="toolbar tabbar tabbar-scrollable">
+		<div class="toolbar-inner">
+			<a href="#tab-review" class="tab-link active">Review</a>
+			<a href="#tab-address" class="tab-link">Address</a>
+			<a href="#tab-payment" class="tab-link">Payment</a>
+			<a href="#tab-done" class="tab-link">Done</a>
+		</div>
+	</div>
+	<!-- End: Toolbar -->
+
+	<!-- Begin: Page Content -->
+  <div class="page-content">
+
+		<div class="tabs">
+			<div id="tab-review" class="tab active">
+				<div class="card">
+					<div class="card-content">
+						<div class="card-content-inner">
+							<div class="list-block media-list no-hairlines no-hairlines-between">
+								<ul class="products-list">
+									<li>
+										<div class="item-content">
+											<div class="item-media">
+												<span class="chip chip-small">
+													<span class="chip-label">
+														<span class="product-quantity">1</span>
+													</span>
+												</span>
+											</div>
+											<div class="item-inner">
+												<div class="item-title-row">
+													<div class="item-title">
+														<span>Apple iPhone 7 Plus</span>
+													</div>
+													<div class="item-after">₹<span class="product-amount">70000</span></div>
+												</div>
+												<div class="item-subtitle">Color: Black | Storage: 128 GB</div>
+											</div>
+										</div>
+									</li>
+									<li>
+										<div class="item-content">
+											<div class="item-media">
+												<span class="chip chip-small">
+													<span class="chip-label">
+														<span class="product-quantity">1</span>
+													</span>
+												</span>
+											</div>
+											<div class="item-inner">
+												<div class="item-title-row">
+													<div class="item-title">
+														<span>Apple Watch Series 1</span>
+													</div>
+													<div class="item-after">₹<span class="product-amount">20000</span></div>
+												</div>
+												<div class="item-subtitle">Color: Black</div>
+											</div>
+										</div>
+									</li>
+									<li>
+										<div class="item-content">
+											<div class="item-media">
+												<span class="chip chip-small">
+													<span class="chip-label">
+														<span class="product-quantity">2</span>
+													</span>
+												</span>
+											</div>
+											<div class="item-inner">
+												<div class="item-title-row">
+													<div class="item-title">
+														<span>Beats Solo 2 Wireless Headphones</span>
+													</div>
+													<div class="item-after">₹<span class="product-amount">30000</span></div>
+												</div>
+												<div class="item-subtitle">Color: Blue</div>
+											</div>
+										</div>
+									</li>
+								</ul>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="card">
+					<div class="card-content">
+						<div class="list-block no-hairlines no-hairlines-between">
+							<ul class="price-summary">
+								<li>
+									<div class="item-content">
+										<div class="item-inner">
+											<div class="item-title">Subtotal (<span class="product-count">3</span> Items)</div>
+											<div class="item-after">₹<span class="subtotal">120000</span></div>
+										</div>
+									</div>
+								</li>
+								<li>
+									<div class="item-content">
+										<div class="item-inner">
+											<div class="item-title">Discount @ 10%</div>
+											<div class="item-after">₹<span class="discount" data-discount-percent="10">12000</span></div>
+										</div>
+									</div>
+								</li>
+								<li>
+									<div class="item-content">
+										<div class="item-inner">
+											<div class="item-title">Shipping Charges</div>
+											<div class="item-after">₹<span class="shipping-charges">0</span></div>
+										</div>
+									</div>
+								</li>
+								<li>
+									<div class="item-content">
+										<div class="item-inner">
+											<div class="item-title"><b>Grand Total</b></div>
+											<div class="item-after"><b>₹<span class="payable-amount">108000</span></b></div>
+										</div>
+									</div>
+								</li>
+							</ul>
+						</div>
+					</div>
+				</div>
+				<div class="content-block">
+					<a href="#" class="button button-big button-block button-fill" data-action="show-tab-address">Continue</a>
+				</div>
+			</div>
+
+			<div id="tab-address" class="tab">
+				<div class="content-block-title">SHIPPING ADDRESS</div>
+				<form name="shipping-address" action="#" method="POST" enctype="multipart/form-data">
+					<div class="list-block no-hairlines">
+						<ul>
+							<li>
+								<div class="item-content">
+									<div class="item-inner">
+										<div class="item-title label">Name</div>
+										<div class="item-input">
+											<input type="text" name="name" required />
+										</div>
+										<div class="item-text input-error"></div>
+									</div>
+								</div>
+							</li>
+							<li class="align-top">
+								<div class="item-content">
+									<div class="item-inner">
+										<div class="item-title label">Address</div>
+										<div class="item-input">
+											<textarea class="resizable" name="address" required></textarea>
+										</div>
+										<div class="item-text input-error"></div>
+									</div>
+								</div>
+							</li>
+							<li>
+								<div class="item-content">
+									<div class="item-inner">
+										<div class="item-title label">City</div>
+										<div class="item-input">
+											<input type="text" name="city" required />
+										</div>
+										<div class="item-text input-error"></div>
+									</div>
+								</div>
+							</li>
+							<li>
+								<div class="item-content">
+									<div class="item-inner">
+										<div class="item-title label">ZIP</div>
+										<div class="item-input">
+											<input type="text" name="zip" required />
+										</div>
+										<div class="item-text input-error"></div>
+									</div>
+								</div>
+							</li>
+						</ul>
+					</div>
+					<div class="content-block">
+						<button type="submit" class="button button-big button-block button-fill">Continue</button>
+					</div>	
+				</form>
+			</div>
+
+			<div id="tab-payment" class="tab">
+				<div class="content-block-title">Choose your payment method</div>
+				<form name="payment" action="#" method="POST" enctype="multipart/form-data">
+					<div class="list-block no-hairlines no-hairlines-between">
+						<ul>
+							<li>
+								<label class="label-radio item-content">
+									<input type="radio" name="payment_method" value="cash" />
+									<span class="item-media">
+										<i class="icon icon-form-radio"></i>
+									</span>
+									<span class="item-inner">
+										<span class="item-title">Cash on Delivery</span>
+										<span class="item-after">
+											<i class="fa fa-fw fa-lg fa-money color-green"></i>
+										</span>
+									</span>
+								</label>
+							</li>
+							<li>
+								<label class="label-radio item-content">
+									<input type="radio" name="payment_method" value="card" />
+									<span class="item-media">
+										<i class="icon icon-form-radio"></i>
+									</span>
+									<span class="item-inner">
+										<span class="item-title">Credit/Debit Card</span>
+										<span class="item-after">
+											<i class="fa fa-fw fa-lg fa-credit-card-alt color-gray"></i>
+										</span>
+									</span>
+								</label>
+							</li>
+							<li>
+								<label class="label-radio item-content">
+									<input type="radio" name="payment_method" value="bitcoin" />
+									<span class="item-media">
+										<i class="icon icon-form-radio"></i>
+									</span>
+									<span class="item-inner">
+										<span class="item-title">Bitcoin</span>
+										<span class="item-after">
+											<i class="fa fa-fw fa-lg fa-bitcoin color-bitcoin"></i>
+										</span>
+									</span>
+								</label>
+							</li>
+							<li>
+								<label class="label-radio item-content">
+									<input type="radio" name="payment_method" value="paypal" />
+									<span class="item-media">
+										<i class="icon icon-form-radio"></i>
+									</span>
+									<span class="item-inner">
+										<span class="item-title">PayPal</span>
+										<span class="item-after">
+											<i class="fa fa-fw fa-lg fa-paypal color-paypal"></i>
+										</span>
+									</span>
+								</label>
+							</li>
+							<li>
+								<label class="label-radio item-content">
+									<input type="radio" name="payment_method" value="google_wallet" />
+									<span class="item-media">
+										<i class="icon icon-form-radio"></i>
+									</span>
+									<span class="item-inner">
+										<span class="item-title">Google Wallet</span>
+										<span class="item-after">
+											<i class="fa fa-fw fa-lg fa-google-wallet color-google"></i>
+										</span>
+									</span>
+								</label>
+							</li>
+							<li>
+								<label class="label-radio item-content">
+									<input type="radio" name="payment_method" value="apple_pay" />
+									<span class="item-media">
+										<i class="icon icon-form-radio"></i>
+									</span>
+									<span class="item-inner">
+										<span class="item-title">Apple Pay</span>
+										<span class="item-after">
+											<i class="fa fa-fw fa-lg fa-apple color-apple"></i>
+										</span>
+									</span>
+								</label>
+							</li>
+							<li>
+								<div class="item-content">
+									<div class="item-inner">
+										<div class="item-text input-error"></div>
+									</div>
+								</div>
+							</li>
+						</ul>
+					</div>
+					<div class="content-block">
+						<button type="submit" class="button button-big button-block button-fill" data-action="show-tab-done">Pay</button>
+					</div>
+				</form>
+			</div>
+
+			<div id="tab-done" class="tab">
+				<div class="container">
+					<i class="fa-5x fa-stack">
+						<span class="fa fa-circle fa-stack-2x color-lightgreen"></span>
+						<span class="fa fa-check fa-stack-1x fa-inverse color-white"></span>
+					</i>
+					<div>Your order has been received successfully.</div>
+				</div>
+			</div>
+		</div>	
+
+	</div>
+	<!-- End: Page Content -->	
+</div>
