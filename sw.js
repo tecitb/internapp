@@ -116,6 +116,8 @@ self.addEventListener('install', function(e) {
                 'home.html',
                 'relasi.html',
                 'relasi_capture.html',
+                'relasi_details.html',
+                'memories.html',
             ]);
         })
     );

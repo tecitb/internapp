@@ -1,0 +1,90 @@
+<div data-page="memories" class="page">
+	<!-- Begin: Navbar -->
+	<div class="navbar">
+		<div class="navbar-inner">
+			<div class="left">
+				<a href="#" class="link icon-only back">
+					<i class="icon icon-back"></i>
+				</a>
+			</div>
+			<div class="center">Memories</div>
+		</div>
+	</div>
+	<!-- End: Navbar -->
+
+	<!-- Begin: Page Content -->
+  <div class="page-content">
+	  <div style="padding: 16px">
+		  <div align="center" id="loading" style="display: none">
+			  <div class="preloader"></div>
+		  </div>
+		  Your memories with <b>Adyaksa Wisanggeni</b>
+	  </div>
+	  <input type="file" capture="camera" accept="image/*" id="cameraInput" name="cameraInput" style="display: none">
+	  <div class="list-block">
+		  <ul>
+			  <li>
+				  <a id="a-impression" class="item-link">
+					  <div class="item-content">
+						  <div class="item-media">
+								<span class="fa-stack">
+									<span class="fa fa-circle fa-stack-2x color-green"></span>
+									<span class="fa fa-book-open fa-stack-1x fa-inverse"></span>
+								</span>
+						  </div>
+						  <div class="item-inner">
+							  <div class="item-title">Write something about him/her</div>
+						  </div>
+					  </div>
+				  </a>
+			  </li>
+			  <li>
+				  <a  onclick="$('#cameraInput').click()" class="item-link">
+					  <div class="item-content">
+						  <div class="item-media">
+								<span class="fa-stack">
+									<span class="fa fa-circle fa-stack-2x color-blue"></span>
+									<span class="fa fa-camera fa-stack-1x fa-inverse"></span>
+								</span>
+						  </div>
+						  <div class="item-inner">
+							  <div class="item-title">Take a photo</div>
+						  </div>
+					  </div>
+				  </a>
+			  </li>
+			  <li>
+				  <div style="height: 200px; overflow: hidden; display: none; background-color: #eeeeee; background-size: cover; background-position: center" id="mimgprev">
+				  </div>
+			  </li>
+		  </ul>
+	  </div>
+  </div>
+	<!-- End: Page Content -->
+	<!-- Begin: Popup -->
+	<div class="popup popup-memories-impression profile">
+		<div class="toolbar">
+			<div class="toolbar-inner">
+				<div class="left" style="padding-left: 16px;">Write something about him/her</div>
+				<div class="right">
+					<a href="#" class="link close-popup">
+						<i class="material-icons">clear</i>
+					</a>
+				</div>
+			</div>
+		</div>
+		<div>
+			<div style="padding: 16px">
+				<p>Write something about <b>Adyaksa Wisanggeni</b>.</p>
+				<p>Your writing should be at least <b>80 words</b> long, and include the story of how you first met, your first impressions, and his/her strengths and weaknesses.</p>
+			</div>
+			<div class="item-input" style="padding: 16px;">
+				<textarea id="impression" class="resizable" style="width: 100%; border: none !important; resize: none;" placeholder="Write something"></textarea>
+			</div>
+			<div align="right" style="padding: 16px;">
+				<small id="words-indicator">0 words</small>
+			</div>
+		</div>
+	</div>
+	<!-- End: Popup -->
+</div>

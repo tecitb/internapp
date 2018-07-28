@@ -5,7 +5,7 @@
 			<img src="assets/custom/img/tia-logo.svg" width="70%" alt="TEC InternApp" />
 		</div>
 
-		<form name="login" action="#" method="POST" enctype="multipart/form-data">
+		<form name="login" action="#" method="POST" onsubmit="return false;" enctype="multipart/form-data">
 			<div class="list-block no-hairlines">
 				<ul>
 					<li>
@@ -15,7 +15,7 @@
 							</div>
 							<div class="item-inner">
 								<div class="item-input">
-									<input type="text" name="noreg" placeholder="No. Registrasi" required />
+									<input type="text" name="email" id="emailLogin" placeholder="E-mail address" required />
 								</div>
 								<div class="item-text input-error"></div>
 							</div>
@@ -28,7 +28,7 @@
 							</div>
 							<div class="item-inner">
 								<div class="item-input">
-									<input type="password" name="password" placeholder="Kata sandi" data-toggle="show-hide-password" required />
+									<input type="password" name="password" id="passwordLogin" placeholder="Password" data-toggle="show-hide-password" required />
 								</div>
 								<div class="item-after show-hide-password">
 									<a href="#" class="color-gray" title="Show" data-action="show-hide-password">
