@@ -583,10 +583,19 @@ myApp.onPageInit('memories', function(page) {
     });
 
     $("#impression").on('change keyup paste', function() {
-        let content = $(this).val().replace("\n", " ").trim();
+        let content = $(this).val().replace("\n", " ").replace("\r", " ").replace("\t", " ").trim();
         let length = content.split(' ').length;
         if(content === "") length = 0;
         $("#words-indicator").html(length + (length === 1 ? ' word' : ' words'));
+
+        // Update icon
+        if(length >= 80) {
+            $("#ic-base-text").removeClass("color-gray").removeClass("color-green").addClass("color-green");
+            $("#ic-text").removeClass("fa-book-open").removeClass("fa-check").addClass("fa-check");
+        } else {
+            $("#ic-base-text").removeClass("color-gray").removeClass("color-green").addClass("color-gray");
+            $("#ic-text").removeClass("fa-book-open").removeClass("fa-check").addClass("fa-book-open");
+        }
     });
 
     $("#a-impression").on('click', function() {
@@ -610,6 +619,9 @@ myApp.onPageInit('memories', function(page) {
         formData.append("text", $("#impression").val());
         formData.append("img", imgBlob, imgName);
 
+        $("#loading").fadeIn(0);
+        $("#main-memories").fadeOut(0);
+
         $.ajax({
             url: SERVER_URL + "/api/memories/put/" + tecRegNo,
             method: 'POST',
@@ -622,10 +634,14 @@ myApp.onPageInit('memories', function(page) {
             error: function (status, xhr) {
                 //TODO on error
                 $("#loading").fadeOut(0);
-                $("#error").fadeIn(0).html("Something went wrong while connecting to the server. Please try again later.");
+                $("#error").fadeIn(0).html("<span class='color-red'>Something went wrong while connecting to the server. Please try again later.</span>");
+                $("#main-memories").fadeIn(0);
             },
             success: function (msg, status, xhr) {
                 console.log("done E= " + msg);
+                $("#loading").fadeOut(0);
+                $("#error").fadeIn(0).html("<span class='color-green'>Memories saved.</span>");
+                $("#main-memories").fadeIn(0);
             }
         });
     }
@@ -658,7 +674,7 @@ myApp.onPageBeforeAnimation('memories', function(page) {
             },
             success: function (msg, status, xhr) {
                 console.log("done E= " + msg);
-                if (msg == false) {
+                if (msg.error !== undefined) {
                     console.log("Error");
                     //TODO user not exists
                     $("#loading").fadeOut(0);
@@ -670,13 +686,38 @@ myApp.onPageBeforeAnimation('memories', function(page) {
                     $(".span-name").html(msg.user.name);
 
                     if(msg.memories !== false) {
-                        $("#mimgprev").fadeIn();
-                        $("#imgprev").attr("src", msg.memories.img_path.replace("memories://", RAW_SERVER_URL + "/uploads/memories/"));
-
+                        // Check and load Text content
                         var e = jQuery.Event("keydown");
                         e.which = 50; // # Some key code value
                         e.keyCode = 50
+
                         $("#impression").val(msg.memories.text).change().trigger(e);
+
+                        let content = msg.memories.text.replace("\n", " ").replace("\r", " ").replace("\t", " ").trim();
+                        let length = content.split(' ').length;
+                        if(content === "") length = 0;
+
+                        // Update icon
+                        if(length >= 80) {
+                            $("#ic-base-text").removeClass("color-gray").removeClass("color-green").addClass("color-green");
+                            $("#ic-text").removeClass("fa-book-open").removeClass("fa-check").addClass("fa-check");
+                        } else {
+                            $("#ic-base-text").removeClass("color-gray").removeClass("color-green").addClass("color-gray");
+                            $("#ic-text").removeClass("fa-book-open").removeClass("fa-check").addClass("fa-book-open");
+                        }
+
+                        // Load and check image
+                        if(msg.memories.img_path != "") {
+                            $("#mimgprev").fadeIn();
+                            $("#imgprev").attr("src", msg.memories.img_path.replace("memories://", RAW_SERVER_URL + "/uploads/memories/"));
+
+                            $("#ic-base-img").removeClass("color-gray").removeClass("color-green").addClass("color-green");
+                            $("#ic-img").removeClass("fa-camera").removeClass("fa-check").addClass("fa-check");
+                        } else {
+                            $("#mimgprev").fadeOut(0);
+                            $("#ic-base-img").removeClass("color-gray").removeClass("color-green").addClass("color-gray");
+                            $("#ic-img").removeClass("fa-camera").removeClass("fa-check").addClass("fa-camera");
+                        }
                     }
                 }
             }
