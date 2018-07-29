@@ -44,6 +44,8 @@ self.addEventListener('install', function(e) {
                 'assets/custom/js/canvas.js',
                 'assets/custom/js/downsample.js',
                 'assets/custom/js/downscale.js',
+                'assets/custom/js/formdata.min.js',
+                'assets/custom/js/canvas-to-blob.min.js',
 
                 'assets/vendor/font-awesome/css/fontawesome-all.min.css',
                 'assets/vendor/font-awesome/webfonts/fa-brands-400.eot',
