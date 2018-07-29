@@ -21,7 +21,6 @@ self.addEventListener('install', function(e) {
         caches.open('internapp').then(function(cache) {
             return cache.addAll([
                 '/',
-                'assets/custom/css/components.css',
                 'assets/custom/css/pages.css',
                 'assets/custom/img/logo.svg',
                 'assets/custom/img/tia-logo.svg',
@@ -35,7 +34,6 @@ self.addEventListener('install', function(e) {
                 'assets/custom/favicons/256.png',
                 'assets/custom/favicons/384.png',
                 'assets/custom/favicons/512.png',
-                'assets/custom/js/components.js',
                 'assets/custom/js/init.js',
                 'assets/custom/js/localforage.min.js',
                 'assets/custom/js/pages.js',
@@ -43,6 +41,9 @@ self.addEventListener('install', function(e) {
                 'assets/custom/js/vcard.js',
                 'assets/custom/js/instascan.min.js',
                 'assets/custom/js/DetectRTC.min.js',
+                'assets/custom/js/canvas.js',
+                'assets/custom/js/downsample.js',
+                'assets/custom/js/downscale.js',
 
                 'assets/vendor/font-awesome/css/fontawesome-all.min.css',
                 'assets/vendor/font-awesome/webfonts/fa-brands-400.eot',

@@ -152,6 +152,57 @@
                 .register('sw.js')
                 .then(function() { console.log("Service Worker Registered"); });
         }
+
+
+        // Load relations
+        function getRelations(token) {
+            console.log("Retrieving list of Relations...");
+            $.ajax({
+                url: SERVER_URL+"/api/relations/get",
+                method: 'GET',
+                cache: false,
+                async: true,
+                headers: {'Authorization': 'Bearer ' + token},
+                error: function(status, xhr) {
+                    alert("Get relations failed: " + status);
+                },
+                success: function(data, status, xhr) {
+                    console.log("Relations list retrieved.");
+                    parseRelations(data).then(function(relations) {
+                        localforage.setItem('relasi', /*JSON.stringify*/(relations)).then(function(value) {
+                            console.log("Relations added");
+                        }).catch(function(err) {
+                            console.log(err);
+                        });
+                    }).catch(function(err) {
+                        console.log(err);
+                    });
+                }
+            });
+        }
+
+        /**
+         * Parses array of Relations
+         * @param arr array of Relations
+         * @returns {Promise<Array>}
+         */
+        async function parseRelations(arr) {
+            let relations = {};
+            for(let i=0; i < arr.length; i++) {
+                let card = vCard.parse(arr[i].vcard);
+                card.relationId = "id-" + arr[i].id;
+                relations[card.relationId] = card;
+            }
+
+            return relations;
+        }
+
+        // Check if user is logged in
+        localforage.getItem("token").then(function (readValue) {
+            if (readValue != null) {
+                getRelations(readValue);
+            }
+        });
     })();
 </script>
 <!-- End: Scripts -->

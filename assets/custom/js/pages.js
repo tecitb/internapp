@@ -145,6 +145,40 @@ myApp.clearStorage = async function() {
     await localforage.removeItem("tec_regno");
 };
 
+
+
+/*
+|------------------------------------------------------------------------------
+| Default pages
+|------------------------------------------------------------------------------
+*/
+
+myApp.onPageInit('*', function(page) {
+
+});
+
+myApp.onPageBeforeAnimation('*', function(page) {
+    if(page.name !== "login") {
+        // Check if user is logged in
+        localforage.getItem("token").then(function (readValue) {
+            if (readValue == null) {
+                window.location.href = "#!/";
+                window.location.reload();
+            }
+        });
+
+        // Display name to UI
+        localforage.getItem("name").then(function (readValue) {
+            $(".profile-name").text(readValue);
+        });
+
+        // Display TEC regNo to UI
+        localforage.getItem("tec_regno").then(function (readValue) {
+            $(".profile-tec-regno").text(readValue);
+        });
+    }
+});
+
 /*
 |------------------------------------------------------------------------------
 | Coming Soon
@@ -736,98 +770,6 @@ myApp.onPageInit('home', function(page) {
     // Remove history
     //mainView.history = [];
 
-    // Check if user is logged in
-    localforage.getItem("token").then(function(readValue) {
-        if(readValue == null) {
-            mainView.router.load({
-                url: 'login.html',
-                pushState: false
-            });
-            mainView.history = [];
-        }
-    });
-
-    // Display name to UI
-    localforage.getItem("name").then(function(readValue) {
-        $(".profile-name").text(readValue);
-    });
-
-    // Display TEC regNo to UI
-    localforage.getItem("tec_regno").then(function(readValue) {
-        $(".profile-tec-regno").text(readValue);
-    });
-
-    /* Hero Slider */
-    myApp.swiper('.page[data-page=home] .slider-hero .swiper-container', {
-        autoplay: 10000,
-        loop: true,
-        pagination: '.swiper-pagination',
-        paginationClickable: true
-    });
-
-    /* Theme Color */
-    if (sessionStorage.getItem('nectarMaterialThemeColor')) {
-        $$('input[name=theme-color][value=' + sessionStorage.getItem('nectarMaterialThemeColor') + ']').prop('checked', true);
-    }
-
-    $$('input[name=theme-color]').on('change', function() {
-        if (this.checked) {
-            $$('body').removeClass('theme-red theme-pink theme-purple theme-deeppurple theme-indigo theme-blue theme-lightblue theme-cyan theme-teal theme-green theme-lightgreen theme-lime theme-yellow theme-amber theme-orange theme-deeporange theme-brown theme-gray theme-bluegray theme-white theme-black');
-            $$('body').addClass('theme-' + $$(this).val());
-            sessionStorage.setItem('nectarMaterialThemeColor', $$(this).val());
-        }
-    });
-
-    /* Theme Mode */
-    if (sessionStorage.getItem('nectarMaterialThemeLayout')) {
-        $$('input[name=theme-layout][value=' + sessionStorage.getItem('nectarMaterialThemeLayout') + ']').prop('checked', true);
-    }
-
-    $$('input[name=theme-layout]').on('change', function() {
-        if (this.checked) {
-            switch($$(this).val()) {
-                case 'dark':
-                    $$('body').removeClass('layout-dark');
-                    $$('body').addClass('layout-' + $$(this).val());
-                    break;
-                default:
-                    $$('body').removeClass('layout-dark');
-                    break;
-            }
-            sessionStorage.setItem('nectarMaterialThemeLayout', $$(this).val());
-        }
-    });
-
-    /* Share App */
-    $$('[data-action=share-app]').on('click', function(e) {
-        e.preventDefault();
-        var buttons = [
-            {
-                text: 'Share Nectar',
-                label: true
-            },
-            {
-                text: '<i class="fa fa-fw fa-lg fa-envelope-o color-red"></i>&emsp;<span>Email</span>'
-            },
-            {
-                text: '<i class="fa fa-fw fa-lg fa-facebook color-facebook"></i>&emsp;<span>Facebook</span>'
-            },
-            {
-                text: '<i class="fa fa-fw fa-lg fa-google-plus color-googleplus"></i>&emsp;<span>Google+</span>'
-            },
-            {
-                text: '<i class="fa fa-fw fa-lg fa-linkedin color-linkedin"></i>&emsp;<span>LinkedIn</span>'
-            },
-            {
-                text: '<i class="fa fa-fw fa-lg fa-twitter color-twitter"></i>&emsp;<span>Twitter</span>'
-            },
-            {
-                text: '<i class="fa fa-fw fa-lg fa-whatsapp color-whatsapp"></i>&emsp;<span>WhatsApp</span>'
-            }
-        ];
-        myApp.actions(buttons);
-    });
-
     $$('.action-logout').on('click', function() {
         myApp.confirm('Kamu ingin logout?',
             function() {
@@ -835,6 +777,7 @@ myApp.onPageInit('home', function(page) {
             }
         );
     });
+
 
     /*Logout, delete token*/
     function logout(){
@@ -848,7 +791,9 @@ myApp.onPageInit('home', function(page) {
             mainView.history = [];
         });
     }
+});
 
+myApp.onPageBeforeAnimation('home', function(page) {
 
 });
 
@@ -982,6 +927,7 @@ myApp.onPageInit('login', function(page) {
             success: function(msg, status, xhr) {
                 localforage.setItem('name', msg.name).then(function(value) {
                     name = value;
+                    $(".profile-name").text(value);
                 }).catch(function(err) {
                     console.log(err);
                 });
@@ -994,6 +940,7 @@ myApp.onPageInit('login', function(page) {
 
                 localforage.setItem('tec_regno', msg.tec_regno).then(function(value) {
                     tecRegNo = value;
+                    $(".profile-tec-regno").text(value);
                 }).catch(function(err) {
                     console.log(err);
                 });
