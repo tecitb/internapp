@@ -1,6 +1,7 @@
 'use strict';
 
-const SERVER_URL = "https://tec-rest.didithilmy.com/public";
+const RAW_SERVER_URL = "https://tec-rest.didithilmy.com";
+const SERVER_URL = RAW_SERVER_URL + "/public";
 
 /**
  * Global definitions
@@ -530,48 +531,6 @@ myApp.onPageInit('relasi-capture', function(page) {
                 url: 'relasi_details.html?vcard=' + encodeURIComponent(data),
                 pushState: true
             });
-            // It is a vCard
-            /*window.history.pushState('', '', '#!/' + window.history.state.url + '?&popup');
-            myApp.popup('.popup-profile-qrc');
-
-            $("#btn-add-vcf").attr('href', 'data:text/vcard;charset=utf-8,' + encodeURIComponent(data));
-
-            card = vCard.parse(data);
-            $("#contact-name").html(card.fn[0].value);
-            $("#contact-org").html(card.org[0].value);
-            if(card.uid != undefined) $("#contact-uid").html(card.uid[0].value);
-
-            if(card.note != undefined)
-                $("#contact-cat").html(Array.isArray(card.note[0].value) ? card.note[0].value.join(", ") : card.note[0].value);
-            else
-                $("#contact-cat").html("<i>No data</i>");
-
-            if(card.email != undefined)
-                $("#contact-email").html(card.email[0].value).attr("href", "mailto:" + card.email[0].value);
-            else
-                $("#contact-email").html("<i>No data</i>").removeAttr("href");
-
-            if(card.tel != undefined)
-                $("#contact-mobile").html(card.tel[0].value).attr("href", "tel:" + card.tel[0].value);
-            else
-                $("#contact-mobile").html("<i>No data</i>").removeAttr("href");
-
-            if(card.adr != undefined)
-                $("#contact-address").html(Array.isArray(card.adr[0].value) ? card.adr[0].value.join(', ') : card.adr[0].value);
-            else
-                $("#contact-address").html("<i>No data</i>");
-
-            if(card['X-LINE'] != undefined)
-                $("#contact-line").html(card['X-LINE'][0].value).attr("href", "line://ti/p/~" + card['X-LINE'][0].value);
-            else
-                $("#contact-line").html("<i>No data</i>").removeAttr("href");
-
-            if(card['X-INSTAGRAM'] != undefined)
-                $("#contact-instagram").html(card['X-INSTAGRAM'][0].value).attr("href", "https://instagram.com/" + card['X-INSTAGRAM'][0].value.replace('@', ''));
-            else
-                $("#contact-instagram").html("<i>No data</i>").removeAttr("href");
-
-            setupRelasiButton();*/
         } else {
             alert("Kode QR salah atau tidak terbaca.");
         }
@@ -590,13 +549,34 @@ myApp.onPageBeforeRemove('relasi-capture', function(page) {
 */
 
 myApp.onPageInit('memories', function(page) {
+    let tecRegNo = page.query.rid;
+    let imgBlob;
+    let imgName;
+    let previewOpened = false;
+
     var loadFile = function(event) {
-        var reader = new FileReader();
-        reader.onload = function(){
-            $("#mimgprev").fadeIn().css('background-image', 'url(' + reader.result + ')')
-        };
-        reader.readAsDataURL(event.target.files[0]);
+        downscale(event.target.files[0], 500, 0, {returnBlob : 1}).then(function(blob) {
+            // Append image to form as a blob data
+            imgBlob = blob;
+            imgName = event.target.files[0].name;
+
+            // Preview image
+            let dataURL = URL.createObjectURL(blob);
+
+            $("#mimgprev").fadeIn().css("height", "200px"); //.css('background-image', 'url(' + dataURL + ')');
+            $("#imgprev").attr("src", dataURL);
+        });
     };
+
+    $("#mimgprev").on('click', function () {
+        if(previewOpened) {
+            $(this).css("height", "200px");
+            previewOpened = false;
+        } else {
+            $(this).css("height", "auto");
+            previewOpened = true;
+        }
+    });
 
     $("#cameraInput").on('change', function(event) {
         loadFile(event);
@@ -615,6 +595,92 @@ myApp.onPageInit('memories', function(page) {
 
     function writeImpression() {
         myApp.popup('.popup-memories-impression');
+    }
+
+    $("#btn-save").on('click', function() {
+        localforage.getItem("token").then(function(readValue) {
+            if(readValue != null) {
+                submit(readValue);
+            }
+        });
+    });
+
+    function submit(token) {
+        let formData = new FormData();
+        formData.append("text", $("#impression").val());
+        formData.append("img", imgBlob, imgName);
+
+        $.ajax({
+            url: SERVER_URL + "/api/memories/put/" + tecRegNo,
+            method: 'POST',
+            cache: false,
+            async: true,
+            processData: false,
+            contentType: false,
+            headers: {'Authorization': 'Bearer ' + token},
+            data: formData,
+            error: function (status, xhr) {
+                //TODO on error
+                $("#loading").fadeOut(0);
+                $("#error").fadeIn(0).html("Something went wrong while connecting to the server. Please try again later.");
+            },
+            success: function (msg, status, xhr) {
+                console.log("done E= " + msg);
+            }
+        });
+    }
+});
+
+myApp.onPageBeforeAnimation('memories', function(page) {
+    // Attempt to load userinfo
+    let tecRegNo = page.query.rid;
+
+    localforage.getItem("token").then(function(readValue) {
+        if(readValue != null) {
+            loadUser(tecRegNo, readValue);
+        }
+    });
+
+    function loadUser(regNo, token) {
+        $("#main-memories").fadeOut(0);
+        $("#error").fadeOut(0);
+        $("#loading").fadeIn(0);
+        $.ajax({
+            url: SERVER_URL + "/api/memories/get/" + tecRegNo,
+            method: 'GET',
+            cache: false,
+            async: true,
+            headers: {'Authorization': 'Bearer ' + token},
+            error: function (status, xhr) {
+                //TODO on error
+                $("#loading").fadeOut(0);
+                $("#error").fadeIn(0).html("Something went wrong while connecting to the server. Please try again later.");
+            },
+            success: function (msg, status, xhr) {
+                console.log("done E= " + msg);
+                if (msg == false) {
+                    console.log("Error");
+                    //TODO user not exists
+                    $("#loading").fadeOut(0);
+                    $("#error").fadeIn(0).html("This Relation is not supported for Memories.");
+                } else {
+                    $("#main-memories").fadeIn(0);
+                    $("#loading").fadeOut(0);
+                    $("#error").fadeOut(0);
+                    $(".span-name").html(msg.user.name);
+
+                    if(msg.memories !== false) {
+                        $("#mimgprev").fadeIn();
+                        $("#imgprev").attr("src", msg.memories.img_path.replace("memories://", RAW_SERVER_URL + "/uploads/memories/"));
+
+                        var e = jQuery.Event("keydown");
+                        e.which = 50; // # Some key code value
+                        e.keyCode = 50
+                        $("#impression").val(msg.memories.text).change().trigger(e);
+                    }
+                }
+            }
+        });
     }
 });
 
