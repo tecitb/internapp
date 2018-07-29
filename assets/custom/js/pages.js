@@ -589,7 +589,7 @@ myApp.onPageInit('memories', function(page) {
     let previewOpened = false;
 
     var loadFile = function(event) {
-        downscale(event.target.files[0], 500, 0, {returnBlob : 1}).then(function(blob) {
+        downscale(event.target.files[0], 0, 500, {returnBlob : 1}).then(function(blob) {
             // Append image to form as a blob data
             imgBlob = blob;
             imgName = event.target.files[0].name;
@@ -651,7 +651,8 @@ myApp.onPageInit('memories', function(page) {
     function submit(token) {
         let formData = new FormData();
         formData.append("text", $("#impression").val());
-        formData.append("img", imgBlob, imgName);
+        if(imgBlob instanceof Blob)
+            formData.append("img", imgBlob, imgName);
 
         $("#loading").fadeIn(0);
         $("#main-memories").fadeOut(0);
