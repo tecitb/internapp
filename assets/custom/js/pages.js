@@ -7,6 +7,118 @@ const SERVER_URL = RAW_SERVER_URL + "/public";
  * Global definitions
  */
 myApp.relations = {};
+myApp.syncQueue = [];
+
+/**
+ * UUID v4 generator
+ * @returns {string} UUID
+ */
+myApp.uuidv4 = function() {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+    });
+};
+
+/**
+ * Appends request to modify
+ * @param request
+ * @returns {Promise<void>}
+ */
+myApp.appendSyncRequest = async function(request) {
+    // Appends a Request-to-Modify
+    let timestamp = Math.round((new Date()).getTime() / 1000);
+    request['timestamp'] = timestamp;
+    myApp.syncQueue.push(request);
+    console.log(myApp.syncQueue);
+
+    // Adds to array
+    await localforage.setItem('syncs', (myApp.syncQueue)).then(function (value) {
+        console.log("Sync request appended.");
+    }).catch(function (err) {
+        console.log(err);
+    });
+};
+
+/**
+ * Syncs data
+ * This method works by submitting any Request-to-Modify records
+ * before fetching the latest Relations list
+ * @returns {Promise<void>}
+ */
+myApp.syncData = async function() {
+    let token = await localforage.getItem("token");
+
+    await myApp.loadRelations();
+
+    // Submit request to modify
+    let length = myApp.syncQueue.length;
+    console.log("Submitting request-to-modify... Length: " + myApp.syncQueue.length);
+    for(let i = 0; i < length; i++) {
+        let rtm = myApp.syncQueue[0];
+        $.ajax({
+            url: SERVER_URL+"/api/relations/sync",
+            method: 'POST',
+            cache: false,
+            async: false,
+            data:{'records': JSON.stringify([rtm])},
+            headers: {'Authorization': 'Bearer ' + token},
+            error: function(status, xhr) {
+                console.log("RTM submit failed: " + status);
+            },
+            success: function(data, status, xhr) {
+                console.log("RTM submit success.");
+                myApp.syncQueue.shift();	// Remove first element
+            }
+        });
+    }
+
+    // Saves array
+    await localforage.setItem('syncs', (myApp.syncQueue)).then(function (value) {
+        console.log("Sync request saved.");
+    }).catch(function (err) {
+        console.log(err);
+    });
+
+    // Load relations
+    console.log("Retrieving list of Relations...");
+    $.ajax({
+        url: SERVER_URL+"/api/relations/get",
+        method: 'GET',
+        cache: false,
+        async: false,
+        headers: {'Authorization': 'Bearer ' + token},
+        error: function(status, xhr) {
+            alert("Get relations failed: " + status);
+        },
+        success: function(data, status, xhr) {
+            console.log("Relations list retrieved.");
+            let relations = myApp.parseRelations(data).then(function(relations) {
+                localforage.setItem('relasi', (relations)).then(function(value) {
+                    console.log("Relations added");
+                }).catch(function(err) {
+                    console.log(err);
+                });
+            });
+        }
+    });
+};
+
+/**
+ * Parses array of relations
+ * @param arr
+ * @returns {Promise<void>}
+ */
+myApp.parseRelations = async function(arr) {
+    let relations = {};
+    for(let i=0; i < arr.length; i++) {
+        let card = vCard.parse(arr[i].vcard);
+        card.relationId = arr[i].relation_with;
+        relations[card.relationId] = card;
+    }
+
+    return relations;
+};
 
 /**
  * Adds relations
@@ -16,30 +128,15 @@ myApp.addRelation = async function(card) {
     let uid = card.uid[0].value;
 
     // If UID is undefined, assign new one.
-    if(uid === undefined) uid = uuidv4();
+    if(uid === undefined) {
+        uid = myApp.uuidv4();
+        card.uid[0].value = uid;
+    }
 
-    // Adds to server
-    let token = await localforage.getItem("token").then(function(readValue) {
-        return readValue;
-    });
+    let relationId = uid;
 
-    var relationId;
-
-    $.ajax({
-        url: SERVER_URL + "/api/relations/put/" + uid,
-        data: {vcard: vCard.generate(card), full_name: card.fn[0].value},
-        method: 'PUT',
-        cache: false,
-        async: false,
-        headers: {'Authorization': 'Bearer ' + token},
-        error: function(status, xhr) {
-            console.log(status);
-        },
-        success: function(msg, status, xhr) {
-            console.log(msg);
-            relationId =  "id-" + msg.relationId;
-        }
-    });
+    // Appends a Request-to-Append
+    await myApp.appendSyncRequest({'action' : 'A', 'relation_uid' : uid, 'vcard_payload' : vCard.generate(card), 'full_name' : card.fn[0].value});
 
     // Add relationId to card
     if(relationId !== undefined) {
@@ -54,13 +151,6 @@ myApp.addRelation = async function(card) {
         });
 
         return card;
-    }
-
-    function uuidv4() {
-        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-            var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
-            return v.toString(16);
-        });
     }
 };
 
@@ -79,37 +169,30 @@ myApp.deleteRelation = async function(relationId) {
         console.log(err);
     });
 
-    // Removes from server
-    let token = await localforage.getItem("token").then(function(readValue) {
-        return readValue;
-    });
-
-    $.ajax({
-        url: SERVER_URL + "/api/relations/delete/" + relationId.replace("id-", ""),
-        method: 'DELETE',
-        cache: false,
-        async: false,
-        headers: {'Authorization': 'Bearer ' + token},
-        error: function(status, xhr) {
-            console.log(status);
-        },
-        success: function(msg, status, xhr) {
-            console.log(msg);
-        }
-    });
+    // Appends a Request-to-Remove
+    await myApp.appendSyncRequest({'action' : 'D', 'relation_uid' : relationId});
 };
 
 /**
- * Load Relations from locsalForage
+ * Load Relations from localForage
  * @returns {Promise<void>}
  */
 myApp.loadRelations = async function() {
-    /* Load Relations*/
+    /* Load Relations */
     await localforage.getItem("relasi").then(function(readValue) {
         if(readValue == undefined) {
             myApp.relations = {};
         } else {
             myApp.relations = /*JSON.parse*/(readValue);
+        }
+    });
+
+    /* Load Sync requests */
+    await localforage.getItem("syncs").then(function(readValue) {
+        if(readValue == undefined) {
+            myApp.syncQueue = [];
+        } else {
+            myApp.syncQueue = /*JSON.parse*/(readValue);
         }
     });
 };
@@ -123,21 +206,13 @@ myApp.isRelated = function(uid) {
     return false;
 };
 
-myApp.getRelationId = function(uid) {
-    for (let key in myApp.relations) {
-        let value = myApp.relations[key];
-        if(value.uid[0].value == uid) return key;
-    }
-
-    return 0;
-};
-
 /**
  * Clears storage
  * @returns {Promise<void>}
  */
 myApp.clearStorage = async function() {
     await localforage.removeItem("relasi");
+    await localforage.removeItem("syncs");
     await localforage.removeItem("token");
     await localforage.removeItem("uid");
     await localforage.removeItem("name");
@@ -287,7 +362,7 @@ myApp.onPageInit('relasi', function(page) {
             }
 
             // Append content
-            content += '<li class="swipeout" data-uid="' + card.uid[0].value + '" data-id="' + card.relationId + '">\n' +
+            content += '<li class="swipeout" data-uid="' + card.uid[0].value + '">\n' +
                 '\t\t\t\t\t\t<div class="item-content swipeout-content" data-action="view-contact">\n' +
                 '\t\t\t\t\t\t\t<div class="item-media">\n' +
                 '\t\t\t\t\t\t\t\t<img class="img-circle" src="assets/custom/img/avatar.png" width="40" alt="" />\n' +
@@ -334,7 +409,7 @@ myApp.onPageInit('relasi', function(page) {
         $$('.page[data-page=relasi] [data-action=view-contact]').on('click', function(e) {
             e.preventDefault();
             var el = $(this).closest('.swipeout');
-            var id = $(el).attr("data-id");
+            var id = $(el).attr("data-uid");
 
             if(myApp.relations[id] != undefined)
                 mainView.router.load({
@@ -352,7 +427,7 @@ myApp.onPageInit('relasi', function(page) {
             var el = $(this).closest('.swipeout');
             myApp.confirm('Are you sure to remove this from My Relations?',
                 function() {
-                    myApp.deleteRelation($(el).attr("data-id")).then(function() {
+                    myApp.deleteRelation($(el).attr("data-uid")).then(function() {
                         myApp.swipeoutDelete(el, function(){
                             myApp.addNotification({
                                 message: 'Removed from My Relations',
@@ -377,8 +452,6 @@ myApp.onPageInit('relasi', function(page) {
 */
 
 myApp.onPageBeforeAnimation('relasi-details', function(page) {
-    console.log("init");
-
     myApp.loadRelations().then(function() {
         if(page.query.vcard !== undefined) {
             viewRelasi(vCard.parse(decodeURIComponent(page.query.vcard)));
@@ -440,7 +513,6 @@ myApp.onPageBeforeAnimation('relasi-details', function(page) {
     $(".r-btn-add-relasi").on('click', function() {
         if(!myApp.isRelated(openCard.uid[0].value)) {
             myApp.addRelation(openCard).then(function(card) {
-                console.log(card); //TODO remove
                 openCard = card;
                 setupRelasiButton();
             });
@@ -449,7 +521,6 @@ myApp.onPageBeforeAnimation('relasi-details', function(page) {
                 function() {
                     myApp.deleteRelation(openCard.relationId).then(function() {
                         setupRelasiButton();
-                        console.log(openCard.relationId);   //TODO remove
                     });
                 });
         }
@@ -460,7 +531,7 @@ myApp.onPageBeforeAnimation('relasi-details', function(page) {
         if(!myApp.isRelated(openCard.uid[0].value)) {
             $(".r-btn-add-relasi .item-title").html("Add to My Relations");
         } else {
-            openCard.relationId = myApp.getRelationId(openCard.uid[0].value);
+            openCard.relationId = (openCard.uid[0].value);
             $(".r-btn-add-relasi .item-title").html("<span style='color:#f44336'>Remove from My Relations</span>");
         }
     }
@@ -514,17 +585,15 @@ myApp.onPageInit('relasi-capture', function(page) {
     $("#btn-add-relasi").on('click', function() {
         if(!myApp.isRelated(card.uid[0].value)) {
             myApp.addRelation(card).then(function(nCard) {
-                console.log(nCard); //TODO remove
                 card = nCard;
                 setupRelasiButton();
             });
         } else {
-            card.relationId = myApp.getRelationId(card.uid[0].value);
+            card.relationId = (card.uid[0].value);
             myApp.confirm('Are you sure to remove this from My Relations?',
                 function() {
                     myApp.deleteRelation(card.relationId).then(function() {
                         setupRelasiButton();
-                        console.log(card.relationId); //TODO remove
                     });
                 });
         }
@@ -962,7 +1031,7 @@ myApp.onPageInit('login', function(page) {
             },
             success: function(data, status, xhr) {
                 console.log("Relations list retrieved.");
-                parseRelations(data).then(function(relations) {
+                myApp.parseRelations(data).then(function(relations) {
                     localforage.setItem('relasi', /*JSON.stringify*/(relations)).then(function(value) {
                         console.log("Relations added");
                     }).catch(function(err) {
@@ -974,23 +1043,6 @@ myApp.onPageInit('login', function(page) {
             }
         });
     }
-
-    /**
-     * Parses array of Relations
-     * @param arr array of Relations
-     * @returns {Promise<Array>}
-     */
-    async function parseRelations(arr) {
-        let relations = {};
-        for(let i=0; i < arr.length; i++) {
-            let card = vCard.parse(arr[i].vcard);
-            card.relationId = "id-" + arr[i].id;
-            relations[card.relationId] = card;
-        }
-
-        return relations;
-    }
-
 });
 
 /*

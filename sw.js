@@ -127,7 +127,6 @@ self.addEventListener('install', function(e) {
 });
 
 self.addEventListener('fetch', function(event) {
-    console.log(event.request.url);
     event.respondWith(
         fetch(event.request).catch(function() {
             return caches.match(event.request);
