@@ -86,7 +86,7 @@ myApp.syncData = async function() {
         url: SERVER_URL+"/api/relations/get",
         method: 'GET',
         cache: false,
-        async: false,
+        async: true,
         headers: {'Authorization': 'Bearer ' + token},
         error: function(status, xhr) {
             alert("Get relations failed: " + status);
