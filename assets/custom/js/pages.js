@@ -102,6 +102,11 @@ myApp.syncData = async function() {
             });
         }
     });
+
+    // Update last sync
+    let timestamp = Math.round((new Date()).getTime() / 1000);
+    localforage.setItem("lastsync", timestamp);
+    $("#last-sync").text(moment.unix(timestamp).fromNow());
 };
 
 /**
@@ -252,64 +257,6 @@ myApp.onPageBeforeAnimation('*', function(page) {
             $(".profile-tec-regno").text(readValue);
         });
     }
-});
-
-/*
-|------------------------------------------------------------------------------
-| Coming Soon
-|------------------------------------------------------------------------------
-*/
-
-myApp.onPageInit('coming-soon', function(page) {
-
-    var countdownDate = new Date('Jan 1, 2018 00:00:00').getTime();
-
-    /* Update the countdown every 1s */
-    var x = setInterval(function() {
-        /* Get today's date and time */
-        var now = new Date().getTime();
-
-        /* Find the duration between now and the countdown date */
-        var duration = countdownDate - now;
-
-        /* Time calculations for days, hours, minutes and seconds */
-        var days = Math.floor(duration / (1000 * 60 * 60 * 24));
-        var hours = Math.floor((duration % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        var minutes = Math.floor((duration % (1000 * 60 * 60)) / (1000 * 60));
-        var seconds = Math.floor((duration % (1000 * 60)) / 1000);
-
-        /* Show countdown timer */
-        $$('.page[data-page=coming-soon] .countdown-timer .days .value').text(days);
-        $$('.page[data-page=coming-soon] .countdown-timer .hours .value').text(hours);
-        $$('.page[data-page=coming-soon] .countdown-timer .minutes .value').text(minutes);
-        $$('.page[data-page=coming-soon] .countdown-timer .seconds .value').text(seconds);
-
-        /* If the countdown is finished, do something */
-        if (duration < 0) {
-            clearInterval(x);
-            mainView.router.load({
-                url: 'home.html'
-            });
-        }
-    }, 1000);
-
-    /* Notify Me */
-    $$('.page[data-page=coming-soon] #modal-notify-me').on('click', function(e) {
-        e.preventDefault();
-        myApp.prompt('Enter your email and we\'ll let you know when Nectar is available.', 'Notify Me', function(value) {
-            if(value.trim().length > 0) {
-                myApp.addNotification({
-                    message: 'Thank You',
-                    hold: 1500,
-                    button: {
-                        text: ''
-                    }
-                });
-                mainView.router.back();
-            }
-        });
-    });
-
 });
 
 /*
@@ -864,7 +811,12 @@ myApp.onPageInit('home', function(page) {
 });
 
 myApp.onPageBeforeAnimation('home', function(page) {
-
+    // Display last synced
+    localforage.getItem("lastsync").then(function(timestamp) {
+        $("#last-sync").text(moment.unix(timestamp).fromNow());
+    }).catch(function(err) {
+        $("#last-sync").text("Never");
+    });
 });
 
 /*
@@ -1047,118 +999,6 @@ myApp.onPageInit('login', function(page) {
 
 /*
 |------------------------------------------------------------------------------
-| Settings
-|------------------------------------------------------------------------------
-*/
-
-myApp.onPageInit('settings', function(page) {
-
-    /* Share App */
-    $$('.page[data-page=settings] [data-action=share-app]').on('click', function(e) {
-        e.preventDefault();
-        var buttons = [
-            {
-                text: 'Share Nectar',
-                label: true
-            },
-            {
-                text: '<i class="fa fa-fw fa-lg fa-envelope-o color-red"></i>&emsp;<span>Email</span>'
-            },
-            {
-                text: '<i class="fa fa-fw fa-lg fa-facebook color-facebook"></i>&emsp;<span>Facebook</span>'
-            },
-            {
-                text: '<i class="fa fa-fw fa-lg fa-google-plus color-googleplus"></i>&emsp;<span>Google+</span>'
-            },
-            {
-                text: '<i class="fa fa-fw fa-lg fa-linkedin color-linkedin"></i>&emsp;<span>LinkedIn</span>'
-            },
-            {
-                text: '<i class="fa fa-fw fa-lg fa-twitter color-twitter"></i>&emsp;<span>Twitter</span>'
-            },
-            {
-                text: '<i class="fa fa-fw fa-lg fa-whatsapp color-whatsapp"></i>&emsp;<span>WhatsApp</span>'
-            }
-        ];
-        myApp.actions(buttons);
-    });
-
-});
-
-/*
-|------------------------------------------------------------------------------
-| Sign Up
-|------------------------------------------------------------------------------
-*/
-
-myApp.onPageInit('signup', function(page) {
-
-    /* Show|Hide Password */
-    $$('.popup-signup-email [data-action=show-hide-password]').on('click', function() {
-        if ($$('.popup-signup-email input[data-toggle=show-hide-password]').attr('type') === 'password') {
-            $$('.popup-signup-email input[data-toggle=show-hide-password]').attr('type', 'text');
-            $$(this).attr('title', 'Hide');
-            $$(this).children('i').text('visibility_off');
-        }
-        else {
-            $$('.popup-signup-email input[data-toggle=show-hide-password]').attr('type', 'password');
-            $$(this).attr('title', 'Show');
-            $$(this).children('i').text('visibility');
-        }
-    });
-
-    /* Validate & Submit Form */
-    $('.popup-signup-email form[name=signup-email]').validate({
-        rules: {
-            name: {
-                required: true
-            },
-            email: {
-                required: true,
-                email:true
-            },
-            password: {
-                required: true,
-                minlength: 8
-            }
-        },
-        messages: {
-            name: {
-                required: 'Please enter name.'
-            },
-            email: {
-                required: 'Please enter email address.',
-                email: 'Please enter a valid email address.'
-            },
-            password: {
-                required: 'Please enter password.',
-                minlength: 'Password must be at least 8 characters long.'
-            }
-        },
-        onkeyup: false,
-        errorElement : 'div',
-        errorPlacement: function(error, element) {
-            error.appendTo(element.parent().siblings('.input-error'));
-        },
-        submitHandler: function(form) {
-            myApp.closeModal('.popup-signup-email');
-            myApp.addNotification({
-                message: 'Thank you for signing up with us.',
-                hold: 2000,
-                button: {
-                    text: ''
-                }
-            });
-            mainView.router.load({
-                url: 'login.html'
-            });
-        }
-    });
-
-});
-
-/*
-|------------------------------------------------------------------------------
 | Splash Screen
 |------------------------------------------------------------------------------
 */
@@ -1237,22 +1077,6 @@ myApp.onPageInit('user-profile', function(page) {
             loop: true
         });
         myPhotoBrowser.open();
-    });
-
-});
-
-/*
-|------------------------------------------------------------------------------
-| Walkthrough
-|------------------------------------------------------------------------------
-*/
-
-myApp.onPageInit('walkthrough', function(page) {
-
-    /* Initialize Slider */
-    myApp.swiper('.page[data-page=walkthrough] .walkthrough-container', {
-        pagination: '.page[data-page=walkthrough] .walkthrough-pagination',
-        paginationClickable: true
     });
 
 });
