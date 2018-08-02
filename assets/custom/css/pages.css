@@ -1,3 +1,22 @@
+@font-face {
+	font-family: 'SourceSansProRg';
+	src:  url('../fonts/SourceSansPro-Regular.otf') format('opentype');
+}
+
+@font-face {
+	font-family: 'SourceSansProBold';
+	src:  url('../fonts/SourceSansPro-Bold.otf') format('opentype');
+}
+
+body {
+	overflow-x: hidden;
+	font-family: SourceSansProRg, Roboto, Noto, Helvetica, Arial, sans-serif !important;
+}
+
+h1, h2, h3, h4, h5, h6 {
+	font-family: SourceSansProBold, Roboto, Noto, Helvetica, Arial, sans-serif !important;
+}
+
 /*
 |------------------------------------------------------------------------------
 | About Us

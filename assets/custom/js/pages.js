@@ -788,7 +788,7 @@ myApp.onPageInit('home', function(page) {
     //mainView.history = [];
 
     $$('.action-logout').on('click', function() {
-        myApp.confirm('Kamu ingin logout?',
+        myApp.confirm('Are you sure to logout?',
             function() {
                 logout();
             }
