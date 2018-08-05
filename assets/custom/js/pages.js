@@ -8,6 +8,7 @@ const SERVER_URL = RAW_SERVER_URL + "/public";
  */
 myApp.relations = {};
 myApp.syncQueue = [];
+myApp.crossParams = {};
 
 /**
  * UUID v4 generator
@@ -18,6 +19,20 @@ myApp.uuidv4 = function() {
         var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
         return v.toString(16);
     });
+};
+
+/**
+ * Parse query string
+ * @param queryString
+ */
+myApp.parseQuery = function (queryString) {
+    var query = {};
+    var pairs = (queryString[0] === '?' ? queryString.substr(1) : queryString).split('&');
+    for (var i = 0; i < pairs.length; i++) {
+        var pair = pairs[i].split('=');
+        query[decodeURIComponent(pair[0])] = decodeURIComponent(pair[1] || '');
+    }
+    return query;
 };
 
 /**
@@ -64,7 +79,8 @@ myApp.syncData = async function() {
             data:{'records': JSON.stringify([rtm])},
             headers: {'Authorization': 'Bearer ' + token},
             error: function(status, xhr) {
-                console.log("RTM submit failed: " + status);
+                console.log("RTM submit failed");
+                console.log(status);
             },
             success: function(data, status, xhr) {
                 console.log("RTM submit success.");
@@ -89,24 +105,21 @@ myApp.syncData = async function() {
         async: true,
         headers: {'Authorization': 'Bearer ' + token},
         error: function(status, xhr) {
-            alert("Get relations failed: " + status);
+            console.log("Get relations failed");
+            console.log(status);
         },
         success: function(data, status, xhr) {
             console.log("Relations list retrieved.");
-            let relations = myApp.parseRelations(data).then(function(relations) {
-                localforage.setItem('relasi', (relations)).then(function(value) {
-                    console.log("Relations added");
-                }).catch(function(err) {
-                    console.log(err);
-                });
+            myApp.parseRelations(data).then(function(relations) {
+                localforage.setItem('relasi', (relations));
+
+                // Update last sync
+                let timestamp = Math.round((new Date()).getTime() / 1000);
+                localforage.setItem("lastsync", timestamp);
+                $("#last-sync").text(moment.unix(timestamp).fromNow());
             });
         }
     });
-
-    // Update last sync
-    let timestamp = Math.round((new Date()).getTime() / 1000);
-    localforage.setItem("lastsync", timestamp);
-    $("#last-sync").text(moment.unix(timestamp).fromNow());
 };
 
 /**
@@ -358,14 +371,16 @@ myApp.onPageInit('relasi', function(page) {
             var el = $(this).closest('.swipeout');
             var id = $(el).attr("data-uid");
 
-            if(myApp.relations[id] != undefined)
+            if(myApp.relations[id] != undefined) {
+                myApp.crossParams['relasi-details'] = {};
+                myApp.crossParams['relasi-details']['id'] = id;
+
                 mainView.router.load({
-                    url: 'relasi_details.html?id=' + id,
+                    url: 'relasi_details.html',
                     pushState: true
                 });
-                //viewRelasi(myApp.relations[id]);
-            else
-                alert("This entry is either removed or does not exists");
+            } else
+                alert("This entry is either removed or does not exist");
         });
 
         /* Delete Contact */
@@ -399,11 +414,12 @@ myApp.onPageInit('relasi', function(page) {
 */
 
 myApp.onPageBeforeAnimation('relasi-details', function(page) {
+    let param = myApp.crossParams['relasi-details'];
     myApp.loadRelations().then(function() {
-        if(page.query.vcard !== undefined) {
-            viewRelasi(vCard.parse(decodeURIComponent(page.query.vcard)));
-        } else {
-            viewRelasi(myApp.relations[page.query.id]);
+        if(param['vcard'] !== undefined) {
+            viewRelasi(vCard.parse(decodeURIComponent(param['vcard'])));
+        } else if(param['id'] !== undefined) {
+            viewRelasi(myApp.relations[param['id']]);
         }
     });
 
@@ -474,7 +490,9 @@ myApp.onPageBeforeAnimation('relasi-details', function(page) {
     });
 
     function setupRelasiButton() {
-        $(".r-btn-memories").attr("href", "memories.html?rid=" + openCard.uid[0].value);
+        myApp.crossParams['memories'] = {};
+        myApp.crossParams['memories']['rid'] = openCard.uid[0].value;
+        $(".r-btn-memories").attr("href", "memories.html");
         if(!myApp.isRelated(openCard.uid[0].value)) {
             $(".r-btn-add-relasi .item-title").html("Add to My Relations");
         } else {
@@ -577,12 +595,13 @@ myApp.onPageInit('relasi-capture', function(page) {
 
     function processVcardData(data) {
         if(data.startsWith("BEGIN:VCARD") && data.replace(/\n$/, "").replace(/\r$/, "").endsWith("END:VCARD")) {
+            myApp.crossParams['relasi-details']['vcard'] = encodeURIComponent(data)
             mainView.router.load({
-                url: 'relasi_details.html?vcard=' + encodeURIComponent(data),
+                url: 'relasi_details.html',
                 pushState: true
             });
         } else {
-            alert("Kode QR salah atau tidak terbaca.");
+            alert("Invalid or unreadable QR code");
         }
     }
 });
@@ -599,7 +618,7 @@ myApp.onPageBeforeRemove('relasi-capture', function(page) {
 */
 
 myApp.onPageInit('memories', function(page) {
-    let tecRegNo = page.query.rid;
+    let tecRegNo = myApp.crossParams['memories']['rid'];
     let imgBlob;
     let imgName;
     let previewOpened = false;
@@ -700,7 +719,7 @@ myApp.onPageInit('memories', function(page) {
 
 myApp.onPageBeforeAnimation('memories', function(page) {
     // Attempt to load userinfo
-    let tecRegNo = page.query.rid;
+    let tecRegNo = myApp.crossParams['memories']['rid'];
 
     localforage.getItem("token").then(function(readValue) {
         if(readValue != null) {
@@ -944,7 +963,8 @@ myApp.onPageInit('login', function(page) {
             async: true,
             headers: {'Authorization': 'Bearer ' + token},
             error: function(status, xhr) {
-                alert("Get profile failed: " + status);
+                console.log("Get profile failed");
+                console.log(status);
             },
             success: function(msg, status, xhr) {
                 localforage.setItem('name', msg.name).then(function(value) {
@@ -979,7 +999,8 @@ myApp.onPageInit('login', function(page) {
             async: true,
             headers: {'Authorization': 'Bearer ' + token},
             error: function(status, xhr) {
-                alert("Get relations failed: " + status);
+                console.log("Get relations failed");
+                console.log(status);
             },
             success: function(data, status, xhr) {
                 console.log("Relations list retrieved.");
