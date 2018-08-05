@@ -7,6 +7,7 @@ const SERVER_URL = RAW_SERVER_URL + "/public";
  * Global definitions
  */
 myApp.relations = {};
+myApp.memories = {};
 myApp.syncQueue = [];
 myApp.crossParams = {};
 
@@ -212,6 +213,30 @@ myApp.loadRelations = async function() {
         } else {
             myApp.syncQueue = /*JSON.parse*/(readValue);
         }
+    });
+
+    /* Load Memories */
+    await localforage.getItem("memories").then(function(readValue) {
+        if(readValue == undefined) {
+            myApp.memories = [];
+        } else {
+            myApp.memories = /*JSON.parse*/(readValue);
+        }
+    });
+};
+
+/**
+ * Sets memories
+ * @param memories
+ */
+myApp.setMemories = async function(memories) {
+    myApp.memories[memories.rid] = memories;
+
+    // Adds to array
+    await localforage.setItem('memories', (myApp.memories)).then(function(value) {
+        console.log("Memories set!");
+    }).catch(function (err) {
+        console.log(err);
     });
 };
 
@@ -492,6 +517,7 @@ myApp.onPageBeforeAnimation('relasi-details', function(page) {
     function setupRelasiButton() {
         myApp.crossParams['memories'] = {};
         myApp.crossParams['memories']['rid'] = openCard.uid[0].value;
+        myApp.crossParams['memories']['name'] = openCard.fn[0].value;
         $(".r-btn-memories").attr("href", "memories.html");
         if(!myApp.isRelated(openCard.uid[0].value)) {
             $(".r-btn-add-relasi .item-title").html("Add to My Relations");
@@ -595,7 +621,7 @@ myApp.onPageInit('relasi-capture', function(page) {
 
     function processVcardData(data) {
         if(data.startsWith("BEGIN:VCARD") && data.replace(/\n$/, "").replace(/\r$/, "").endsWith("END:VCARD")) {
-            myApp.crossParams['relasi-details']['vcard'] = encodeURIComponent(data)
+            myApp.crossParams['relasi-details']['vcard'] = encodeURIComponent(data);
             mainView.router.load({
                 url: 'relasi_details.html',
                 pushState: true
@@ -634,6 +660,10 @@ myApp.onPageInit('memories', function(page) {
 
             $("#mimgprev").fadeIn().css("height", "200px"); //.css('background-image', 'url(' + dataURL + ')');
             $("#imgprev").attr("src", dataURL);
+
+            setTimeout(function() {
+                URL.revokeObjectURL(dataURL);
+            }, 2000);
         });
     };
 
@@ -688,6 +718,10 @@ myApp.onPageInit('memories', function(page) {
         formData.append("text", $("#impression").val());
         if(imgBlob instanceof Blob)
             formData.append("img", imgBlob, imgName);
+        /*else
+            // TODO store blobs in localforage
+            if(myApp.memories[tecRegNo].image instanceof Blob)
+                imgBlob = myApp.memories[tecRegNo].image;*/
 
         $("#loading").fadeIn(0);
         $("#main-memories").fadeOut(0);
@@ -706,12 +740,20 @@ myApp.onPageInit('memories', function(page) {
                 $("#loading").fadeOut(0);
                 $("#error").fadeIn(0).html("<span class='color-red'>Something went wrong while connecting to the server. Please try again later.</span>");
                 $("#main-memories").fadeIn(0);
+
+                // TODO store blobs in localforage
+                myApp.setMemories({rid: tecRegNo, text: $("#impression").val(), synced: false, name: myApp.crossParams['memories']['name']});
+
             },
             success: function (msg, status, xhr) {
                 console.log("done E= " + msg);
                 $("#loading").fadeOut(0);
                 $("#error").fadeIn(0).html("<span class='color-green'>Memories saved.</span>");
                 $("#main-memories").fadeIn(0);
+
+                // TODO store blobs in localforage
+                myApp.setMemories({rid: tecRegNo, text: $("#impression").val(), synced: true, name: myApp.crossParams['memories']['name']});
+
             }
         });
     }
@@ -740,7 +782,49 @@ myApp.onPageBeforeAnimation('memories', function(page) {
             error: function (status, xhr) {
                 //TODO on error
                 $("#loading").fadeOut(0);
-                $("#error").fadeIn(0).html("Something went wrong while connecting to the server. Please try again later.");
+                if(myApp.memories[tecRegNo] !== undefined && myApp.memories[tecRegNo] === false) {
+                    $("#error").fadeIn(0).html("This Relation is not supported for Memories.");
+                } else {
+                    $("#main-memories").fadeIn(0);
+                    $("#loading").fadeOut(0);
+
+                    $(".span-name").html(myApp.crossParams['memories']['name']);
+
+                    if(myApp.memories[tecRegNo] !== undefined)
+                        $("#impression").val(myApp.memories[tecRegNo].text).change();
+
+                    let content = myApp.memories[tecRegNo].text.replace("\n", " ").replace("\r", " ").replace("\t", " ").trim();
+                    let length = content.split(' ').length;
+                    if(content === "") length = 0;
+
+                    // Update icon
+                    if(length >= 80) {
+                        $("#ic-base-text").removeClass("color-gray").removeClass("color-green").addClass("color-green");
+                        $("#ic-text").removeClass("fa-book-open").removeClass("fa-check").addClass("fa-check");
+                    } else {
+                        $("#ic-base-text").removeClass("color-gray").removeClass("color-green").addClass("color-gray");
+                        $("#ic-text").removeClass("fa-book-open").removeClass("fa-check").addClass("fa-book-open");
+                    }
+
+                    // Load and check image
+                    // TODO store blobs in localforage
+                    /*if(myApp.memories[tecRegNo] !== undefined && myApp.memories[tecRegNo].image !== undefined) {
+                        let dataURL = URL.createObjectURL(myApp.memories[tecRegNo].image);
+                        $("#mimgprev").fadeIn();
+                        $("#imgprev").attr("src", dataURL);
+
+                        setTimeout(function() {
+                            URL.revokeObjectURL(dataURL);
+                        }, 2000);
+
+                        $("#ic-base-img").removeClass("color-gray").removeClass("color-green").addClass("color-green");
+                        $("#ic-img").removeClass("fa-camera").removeClass("fa-check").addClass("fa-check");
+                    } else {
+                        $("#mimgprev").fadeOut(0);
+                        $("#ic-base-img").removeClass("color-gray").removeClass("color-green").addClass("color-gray");
+                        $("#ic-img").removeClass("fa-camera").removeClass("fa-check").addClass("fa-camera");
+                    }*/
+                }
             },
             success: function (msg, status, xhr) {
                 console.log("done E= " + msg);
@@ -752,7 +836,6 @@ myApp.onPageBeforeAnimation('memories', function(page) {
                 } else {
                     $("#main-memories").fadeIn(0);
                     $("#loading").fadeOut(0);
-                    $("#error").fadeOut(0);
                     $(".span-name").html(msg.user.name);
 
                     if(msg.memories !== false) {
