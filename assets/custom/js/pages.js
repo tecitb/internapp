@@ -258,9 +258,10 @@ myApp.clearStorage = async function() {
     await localforage.removeItem("syncs");
     await localforage.removeItem("token");
     await localforage.removeItem("uid");
-    await localforage.removeItem("name");
+    await localforage.removeItem("profile");
+    /*await localforage.removeItem("name");
     await localforage.removeItem("nickname");
-    await localforage.removeItem("tec_regno");
+    await localforage.removeItem("tec_regno");*/
 };
 
 
@@ -285,17 +286,35 @@ myApp.onPageBeforeAnimation('*', function(page) {
             }
         });
 
-        // Display name to UI
-        localforage.getItem("name").then(function (readValue) {
-            $(".profile-name").text(readValue);
-        });
-
-        // Display TEC regNo to UI
-        localforage.getItem("tec_regno").then(function (readValue) {
-            $(".profile-tec-regno").text(readValue);
+        // Display profile to UI
+        localforage.getItem("profile").then(function (profile) {
+            if(profile !== null) {
+                myApp.userProfile = profile;
+                myApp.injectProfileData(profile);
+            }
         });
     }
 });
+
+myApp.injectProfileData = function(profile) {
+    $(".profile-info").each(function(i) {
+        var profileType = $(this).attr("data-profile");
+        var injectType = $(this).attr("data-inject");
+
+        switch (injectType) {
+            case 'html':
+                $(this).html(profile[profileType]);
+                break;
+            case 'src':
+                $(this).attr("src", profile[profileType]);
+                break;
+            case 'text':
+            default:
+                $(this).text(profile[profileType]);
+                break;
+        }
+    });
+};
 
 /*
 |------------------------------------------------------------------------------
@@ -554,7 +573,7 @@ myApp.onPageInit('relasi-capture', function(page) {
             });
             Instascan.Camera.getCameras().then(function (cameras) {
                 if (cameras.length > 0) {
-                    scanner.start(cameras[0]);
+                    scanner.start(cameras[cameras.length - 1]);
                 } else {
                     console.error('No cameras found.');
                     $("#qrscan-manual").fadeIn(0);
@@ -989,7 +1008,7 @@ myApp.onPageInit('login', function(page) {
         }
     });
 
-    var name, nickname, tecRegNo, jwt, uid;
+    var jwt, uid;
 
     /*Login*/
     // This variable is used to keep track if a server call is ongoing.
@@ -1050,7 +1069,7 @@ myApp.onPageInit('login', function(page) {
                 console.log(status);
             },
             success: function(msg, status, xhr) {
-                localforage.setItem('name', msg.name).then(function(value) {
+                /*localforage.setItem('name', msg.name).then(function(value) {
                     name = value;
                     $(".profile-name").text(value);
                 }).catch(function(err) {
@@ -1066,6 +1085,14 @@ myApp.onPageInit('login', function(page) {
                 localforage.setItem('tec_regno', msg.tec_regno).then(function(value) {
                     tecRegNo = value;
                     $(".profile-tec-regno").text(value);
+                }).catch(function(err) {
+                    console.log(err);
+                });*/
+
+                myApp.injectProfileData(msg);
+
+                localforage.setItem('profile', msg).then(function(profile) {
+                    myApp.userProfile = profile;
                 }).catch(function(err) {
                     console.log(err);
                 });
