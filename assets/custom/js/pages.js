@@ -1,6 +1,6 @@
 'use strict';
 
-const RAW_SERVER_URL = "https://tec-rest.didithilmy.com";
+const RAW_SERVER_URL = "https://intern.tec.or.id/restsvc";
 const SERVER_URL = RAW_SERVER_URL + "/public";
 
 /**
@@ -273,7 +273,12 @@ myApp.clearStorage = async function() {
 */
 
 myApp.onPageInit('*', function(page) {
-
+    $('img[data-failover]').error(function(){
+        var failover = $(this).data('failover');
+        if (this.src != failover){
+            this.src = failover;
+        }
+    });
 });
 
 myApp.onPageBeforeAnimation('*', function(page) {
@@ -366,10 +371,13 @@ myApp.onPageInit('relasi', function(page) {
             }
 
             // Append content
+            var imgurl = "assets/custom/img/avatar.png";
+            if(card.photo !== undefined) imgurl = card.photo[0].value;
+
             content += '<li class="swipeout" data-uid="' + card.uid[0].value + '">\n' +
                 '\t\t\t\t\t\t<div class="item-content swipeout-content" data-action="view-contact">\n' +
                 '\t\t\t\t\t\t\t<div class="item-media">\n' +
-                '\t\t\t\t\t\t\t\t<img class="img-circle" src="assets/custom/img/avatar.png" width="40" alt="" />\n' +
+                '\t\t\t\t\t\t\t\t<img class="img-circle" src="' + imgurl + '" data-failover="assets/custom/img/avatar.png" width="40" alt="" />\n' +
                 '\t\t\t\t\t\t\t</div>\n' +
                 '\t\t\t\t\t\t\t<div class="item-inner">\n' +
                 '\t\t\t\t\t\t\t\t<div class="item-title">' + card.fn[0].value + '</div>\n' +
@@ -402,6 +410,13 @@ myApp.onPageInit('relasi', function(page) {
         if(relationsAlphabetic.length > 0) content += '</ul></div>';
 
         $("#relasi-list").html(content);
+
+        $('img[data-failover]').error(function(){
+            var failover = $(this).data('failover');
+            if (this.src != failover){
+                this.src = failover;
+            }
+        });
 
         /* Search Bar */
         var mySearchbar = myApp.searchbar('.page[data-page=relasi] .searchbar', {
@@ -513,6 +528,10 @@ myApp.onPageBeforeAnimation('relasi-details', function(page) {
             $(".r-contact-instagram").html(cd['X-INSTAGRAM'][0].value).attr("href", "https://instagram.com/" + cd['X-INSTAGRAM'][0].value.replace('@', ''));
         else
             $(".r-contact-instagram").html("<i>No data</i>").removeAttr("href");
+
+        if(cd.photo !== undefined) {
+            $("#relimg").attr("src", cd.photo[0].value);
+        }
 
         setupRelasiButton();
     }
@@ -640,6 +659,7 @@ myApp.onPageInit('relasi-capture', function(page) {
 
     function processVcardData(data) {
         if(data.startsWith("BEGIN:VCARD") && data.replace(/\n$/, "").replace(/\r$/, "").endsWith("END:VCARD")) {
+            myApp.crossParams['relasi-details'] = {};
             myApp.crossParams['relasi-details']['vcard'] = encodeURIComponent(data);
             mainView.router.load({
                 url: 'relasi_details.html',
