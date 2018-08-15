@@ -4,6 +4,14 @@ const RAW_SERVER_URL = "https://intern.tec.or.id/restsvc";
 const SERVER_URL = RAW_SERVER_URL + "/public";
 
 /**
+ * TODO make sure the following scenario works:
+ *  - The user is offline
+ *  - The user adds Memories for non-supported Relation
+ *  - The user goes online and the app sync
+ *  - The app should discard the unsupported Memories.
+ */
+
+/**
  * Global definitions
  */
 myApp.relations = {};
@@ -811,10 +819,6 @@ myApp.onPageInit('memories', function(page) {
         formData.append("text", $("#impression").val());
         if(imgBlob instanceof Blob)
             formData.append("img", imgBlob, imgName);
-        /*else
-            // TODO store blobs in localforage
-            if(myApp.memories[tecRegNo].image instanceof Blob)
-                imgBlob = myApp.memories[tecRegNo].image;*/
 
         $("#loading").fadeIn(0);
         $("#main-memories").fadeOut(0);
@@ -836,7 +840,6 @@ myApp.onPageInit('memories', function(page) {
                 $("#error").fadeIn(0).html("<span class='color-red'>Something went wrong while connecting to the server. Please try again later.</span>");
                 $("#main-memories").fadeIn(0);
 
-                // TODO store blobs in localforage
                 myApp.setMemories({rid: tecRegNo, text: $("#impression").val(), synced: false, name: myApp.crossParams['memories']['name'], blobId: blobId});
 
                 if(imgBlob instanceof Blob)
@@ -848,7 +851,6 @@ myApp.onPageInit('memories', function(page) {
                 $("#error").fadeIn(0).html("<span class='color-green'>Memories saved.</span>");
                 $("#main-memories").fadeIn(0);
 
-                // TODO store blobs in localforage
                 myApp.setMemories({rid: tecRegNo, text: $("#impression").val(), synced: true, name: myApp.crossParams['memories']['name'], blobId: blobId});
                 if(imgBlob instanceof Blob)
                     localforage.setItem("blob-" + blobId, {blob: imgBlob, fname: imgName});
@@ -905,7 +907,6 @@ myApp.onPageBeforeAnimation('memories', function(page) {
                     }
 
                     // Load and check image
-                    // TODO store blobs in localforage
                     if(myApp.memories[tecRegNo] !== undefined && myApp.memories[tecRegNo].blobId !== undefined) {
                         // Get blobId
                         let blobId = myApp.memories[tecRegNo].blobId;
