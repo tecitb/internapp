@@ -68,9 +68,11 @@ myApp.syncData = async function() {
     await myApp.loadRelations();
 
     // Submit request to modify
+    var rtms = 0;
     let length = myApp.syncQueue.length;
     console.log("Submitting request-to-modify... Length: " + myApp.syncQueue.length);
     for(let i = 0; i < length; i++) {
+        rtms++;
         let rtm = myApp.syncQueue[0];
         $.ajax({
             url: SERVER_URL+"/api/relations/sync",
@@ -91,11 +93,57 @@ myApp.syncData = async function() {
     }
 
     // Saves array
-    await localforage.setItem('syncs', (myApp.syncQueue)).then(function (value) {
-        console.log("Sync request saved.");
-    }).catch(function (err) {
-        console.log(err);
-    });
+    if(rtms > 0) {
+        await localforage.setItem('syncs', (myApp.syncQueue)).then(function (value) {
+            console.log("Sync request saved.");
+        }).catch(function (err) {
+            console.log(err);
+        });
+    }
+
+    // Submit Memories modifications
+    var edms = 0;
+    for(let key in myApp.memories) {
+        var memories = myApp.memories[key];
+        if(!memories.synced) {
+            // Memories isn't synced. Try to sync
+            let formData = new FormData();
+            formData.append("text", memories.text);
+
+            // Retrieve blob
+            let obj = await localforage.getItem("blob-" + memories.blobId);
+
+            if(obj.blob instanceof Blob)
+                formData.append("img", obj.blob, obj.fname);
+
+            $.ajax({
+                url: SERVER_URL + "/api/memories/put/" + memories.rid,
+                method: 'POST',
+                cache: false,
+                async: true,
+                processData: false,
+                contentType: false,
+                headers: {'Authorization': 'Bearer ' + token},
+                data: formData,
+                error: function (status, xhr) {
+                    console.log("Memories sync failed");
+                },
+                success: function (msg, status, xhr) {
+                    edms++;
+                    myApp.memories[key].synced = true;
+                }
+            });
+        }
+    }
+
+    // Saves array
+    if(edms > 0) {
+        await localforage.setItem('memories', (myApp.memories)).then(function (value) {
+            console.log("Memories");
+        }).catch(function (err) {
+            console.log(err);
+        });
+    }
 
     // Load relations
     console.log("Retrieving list of Relations...");
@@ -171,6 +219,9 @@ myApp.addRelation = async function(card) {
 
         return card;
     }
+
+    // Attempts to sync data
+    myApp.syncData();
 };
 
 /**
@@ -190,6 +241,10 @@ myApp.deleteRelation = async function(relationId) {
 
     // Appends a Request-to-Remove
     await myApp.appendSyncRequest({'action' : 'D', 'relation_uid' : relationId});
+
+
+    // Attempts to sync data
+    myApp.syncData();
 };
 
 /**
@@ -342,7 +397,6 @@ myApp.onPageInit('relasi', function(page) {
 
         for (var key in myApp.relations) {
             var value = myApp.relations[key];
-            //console.log(value); //TODO remove
             relationsAlphabetic.push(value);
         }
 
@@ -765,6 +819,8 @@ myApp.onPageInit('memories', function(page) {
         $("#loading").fadeIn(0);
         $("#main-memories").fadeOut(0);
 
+        var blobId = tecRegNo;
+
         $.ajax({
             url: SERVER_URL + "/api/memories/put/" + tecRegNo,
             method: 'POST',
@@ -781,8 +837,10 @@ myApp.onPageInit('memories', function(page) {
                 $("#main-memories").fadeIn(0);
 
                 // TODO store blobs in localforage
-                myApp.setMemories({rid: tecRegNo, text: $("#impression").val(), synced: false, name: myApp.crossParams['memories']['name']});
+                myApp.setMemories({rid: tecRegNo, text: $("#impression").val(), synced: false, name: myApp.crossParams['memories']['name'], blobId: blobId});
 
+                if(imgBlob instanceof Blob)
+                    localforage.setItem("blob-" + blobId, {blob: imgBlob, fname: imgName});
             },
             success: function (msg, status, xhr) {
                 console.log("done E= " + msg);
@@ -791,8 +849,9 @@ myApp.onPageInit('memories', function(page) {
                 $("#main-memories").fadeIn(0);
 
                 // TODO store blobs in localforage
-                myApp.setMemories({rid: tecRegNo, text: $("#impression").val(), synced: true, name: myApp.crossParams['memories']['name']});
-
+                myApp.setMemories({rid: tecRegNo, text: $("#impression").val(), synced: true, name: myApp.crossParams['memories']['name'], blobId: blobId});
+                if(imgBlob instanceof Blob)
+                    localforage.setItem("blob-" + blobId, {blob: imgBlob, fname: imgName});
             }
         });
     }
@@ -847,14 +906,22 @@ myApp.onPageBeforeAnimation('memories', function(page) {
 
                     // Load and check image
                     // TODO store blobs in localforage
-                    /*if(myApp.memories[tecRegNo] !== undefined && myApp.memories[tecRegNo].image !== undefined) {
-                        let dataURL = URL.createObjectURL(myApp.memories[tecRegNo].image);
-                        $("#mimgprev").fadeIn();
-                        $("#imgprev").attr("src", dataURL);
+                    if(myApp.memories[tecRegNo] !== undefined && myApp.memories[tecRegNo].blobId !== undefined) {
+                        // Get blobId
+                        let blobId = myApp.memories[tecRegNo].blobId;
 
-                        setTimeout(function() {
-                            URL.revokeObjectURL(dataURL);
-                        }, 2000);
+                        // Retrieve blob
+                        localforage.getItem("blob-" + blobId).then(function(obj) {
+                            if(obj.blob instanceof Blob) {
+                                let dataURL = URL.createObjectURL(obj.blob);
+                                $("#mimgprev").fadeIn();
+                                $("#imgprev").attr("src", dataURL);
+
+                                setTimeout(function() {
+                                    URL.revokeObjectURL(dataURL);
+                                }, 2000);
+                            }
+                        });
 
                         $("#ic-base-img").removeClass("color-gray").removeClass("color-green").addClass("color-green");
                         $("#ic-img").removeClass("fa-camera").removeClass("fa-check").addClass("fa-check");
@@ -862,7 +929,7 @@ myApp.onPageBeforeAnimation('memories', function(page) {
                         $("#mimgprev").fadeOut(0);
                         $("#ic-base-img").removeClass("color-gray").removeClass("color-green").addClass("color-gray");
                         $("#ic-img").removeClass("fa-camera").removeClass("fa-check").addClass("fa-camera");
-                    }*/
+                    }
                 }
             },
             success: function (msg, status, xhr) {
@@ -1207,27 +1274,52 @@ myApp.onPageInit('splash-screen', function(page) {
 */
 
 myApp.onPageInit('user-profile', function(page) {
+    var qrcode;
 
-    /* Portfolio Images Browser */
-    $$('body').on('click', '.page[data-page=user-profile] #tab-portfolio .image-gallery .image-wrapper img', function() {
-        var photos = [];
+    if(typeof QRCode !== 'undefined')
+        qrcode = new QRCode(document.getElementById("profile-qrc"), "tec internapp");
 
-        $('.page[data-page=user-profile] #tab-portfolio .image-gallery .image-wrapper img').each(function() {
-            photos.push({
-                url: $(this).attr('src'),
-                caption: $(this).attr('alt')
+    $("#btn-qrc").on('click', function() {
+        myApp.popup(".popup-profile");
+        $("#profile-qrc-loading").fadeIn(0);
+        $("#profile-qrc-card").fadeOut(0);
+        if(myApp.profile_qrcode !== undefined) myApp.profile_qrcode.clear();
+
+
+        if(qrcode === undefined)
+            qrcode = new QRCode(document.getElementById("profile-qrc"), "tec internapp");
+
+        localforage.getItem("token").then(function (token) {
+            $.ajax({
+                url: SERVER_URL+"/api/relations/vcard",
+                method: 'GET',
+                cache: false,
+                async: true,
+                headers: {'Authorization': 'Bearer ' + token},
+                error: function(status, xhr) {
+                    console.log(status);
+                },
+                success: function(data, status, xhr) {
+                    $("#profile-qrc-loading").fadeOut(0);
+                    $("#profile-qrc-card").fadeIn(0);
+                    qrcode.clear();
+                    qrcode.makeCode(data.vcard);
+                }
             });
+
         });
 
-        var myPhotoBrowser = myApp.photoBrowser({
-            photos: photos,
-            exposition: false,
-            lazyLoading: true,
-            lazyLoadingInPrevNext: true,
-            lazyLoadingOnTransitionStart: true,
-            loop: true
-        });
-        myPhotoBrowser.open();
     });
 
+    $("#btn-passwd").on('click', function() {
+        myApp.popup(".popup-password");
+    });
+
+    $("#btn-profpic").on('click', function() {
+        myApp.popup(".popup-picture");
+    });
+
+    let imgBlob;
+    let imgName;
+    let previewOpened = false;
 });

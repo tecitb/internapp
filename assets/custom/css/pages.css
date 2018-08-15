@@ -1927,63 +1927,24 @@ h1, h2, h3, h4, h5, h6, b {
 	width: 100%;
 }
 
-.page[data-page=user-profile] .skills-list .skill-title {
-	font-size: 12px;
-	margin-right: 8px;
-	text-align: left;
-	width: 96px;
+#profile-qrc {
+	padding: 16px;
 }
 
-.page[data-page=user-profile] .skills-list .skill-proficiency {
-	font-size: 12px;
-	margin-left: 8px;
-	text-align: right;
-	width: 16px;
-}
-
-.page[data-page=user-profile] #tab-experience .list-block .item-title {
-	-webkit-box-orient: vertical;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  line-height: 20px;
-  margin-bottom: 6px;
-  white-space: normal;
-}
-
-.page[data-page=user-profile] #tab-experience .list-block .item-subtitle {
-	-webkit-box-orient: vertical;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  line-height: 18px;
-  margin-bottom: 6px;
-  white-space: normal;
-}
-
-.page[data-page=user-profile] #tab-portfolio .card .card-content-inner {
-	padding-bottom: 8px;
-	padding-top: 8px;
-}
-
-.page[data-page=user-profile] #tab-portfolio .image-gallery .image-wrapper {
-	margin-bottom: 3px;
-	margin-top: 8px;
-	position: relative;
-}
-
-.page[data-page=user-profile] #tab-portfolio .image-gallery img {
+#profile-qrc img {
 	width: 100%;
 }
 
-.page[data-page=user-profile] #tab-portfolio .image-gallery .image-caption {
-	background-color: rgba(0, 0, 0, 0.7);
-	bottom: 6px;
-	box-sizing: border-box;
-	color: rgba(255, 255, 255, 0.87);
-	font-size: 11px;
-	padding: 4px 8px;
-	position: absolute;
-	text-align: center;
-	width: 100%;
+#profile-qrc-card {
+	box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
+	border-radius: 6px;
+	background: #ffffff;
+	overflow: hidden;
+}
+
+#profile-qrc-card .data {
+	background: #fcfcfc;
+	padding: 16px;
 }
 
 /*

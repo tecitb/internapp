@@ -20,11 +20,32 @@
 			<h2 class="profile-info user-name" data-profile="name"></h2>
 		</div>
 
+	  <div class="content-block-title">MY PROFILE</div>
+	  <div class="list-block">
+		  <ul>
+			  <li>
+				  <a id="btn-qrc" class="item-link">
+					  <div class="item-content">
+						  <div class="item-media">
+								<span class="fa-stack">
+									<span class="fa fa-circle fa-stack-2x color-amber"></span>
+									<span class="fa fa-qrcode fa-stack-1x fa-inverse"></span>
+								</span>
+						  </div>
+						  <div class="item-inner">
+							  <div class="item-title">View my QR code</div>
+						  </div>
+					  </div>
+				  </a>
+			  </li>
+		  </ul>
+	  </div>
+
 	  <div class="content-block-title">ADMINISTRATION</div>
 	  <div class="list-block">
 		  <ul>
 			  <li>
-				  <a href="relasi.html" class="item-link">
+				  <a id="btn-passwd" class="item-link">
 					  <div class="item-content">
 						  <div class="item-media">
 								<span class="fa-stack">
@@ -38,25 +59,119 @@
 					  </div>
 				  </a>
 			  </li>
-			  <li>
-				  <a href="#" class="item-link">
-					  <div class="item-content">
-						  <div class="item-media">
-								<span class="fa-stack">
-									<span class="fa fa-circle fa-stack-2x color-blue"></span>
-									<span class="fa fa-upload fa-stack-1x fa-inverse"></span>
-								</span>
-						  </div>
-						  <div class="item-inner">
-							  <div class="item-title">Upload new profile picture</div>
-						  </div>
-					  </div>
-				  </a>
-			  </li>
 		  </ul>
 	  </div>
 
 	</div>
 	<!-- End: Page Content -->
+
+	<!-- Begin: Popup -->
+	<div class="popup popup-profile" style="background: #ededed">
+		<div class="toolbar">
+			<div class="toolbar-inner">
+				<div class="left" style="padding-left: 16px;">Profile QR code</div>
+				<div class="right">
+					<a href="#" class="link close-popup">
+						<i class="material-icons">clear</i>
+					</a>
+				</div>
+			</div>
+		</div>
+		<div class="content-block">
+			<div align="center" id="profile-qrc-loading" style="padding: 32px">
+				<div class="preloader"></div>
+			</div>
+			<div id="profile-qrc-card" style="display: none">
+				<div id="profile-qrc"></div>
+				<div class="data">
+					<img src="assets/custom/img/tia-logo.svg" height="25" />
+					<br />
+					<b class="profile-info" data-profile="name"></b>
+					<br />
+					<span class="profile-info" data-profile="tec_regno"></span>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- End: Popup -->
+
+	<!-- Begin: Popup -->
+	<div class="popup popup-password">
+		<div class="toolbar">
+			<div class="toolbar-inner">
+				<div class="left" style="padding-left: 16px;">Change password</div>
+				<div class="right">
+					<a href="#" class="link close-popup">
+						<i class="material-icons">clear</i>
+					</a>
+				</div>
+			</div>
+		</div>
+		<div>
+			<div class="list-block no-hairlines no-hairlines-between">
+				<ul>
+					<li>
+						<div class="item-content">
+							<div class="item-media">
+								<i class="material-icons">lock</i>
+							</div>
+							<div class="item-inner">
+								<div class="item-title label">Old password</div>
+								<div class="item-input">
+									<input type="text" id="opass" />
+								</div>
+							</div>
+						</div>
+					</li>
+					<li>
+						<div class="item-content">
+							<div class="item-media">
+								<i class="material-icons">lock_outline</i>
+							</div>
+							<div class="item-inner">
+								<div class="item-title label">New password</div>
+								<div class="item-input">
+									<input type="text" id="npass" />
+								</div>
+							</div>
+						</div>
+					</li>
+					<li>
+						<div class="item-content">
+							<div class="item-media">
+								<i class="material-icons">lock_outline</i>
+							</div>
+							<div class="item-inner">
+								<div class="item-title label">Retype new password</div>
+								<div class="item-input">
+									<input type="text" id="rnpass" />
+								</div>
+							</div>
+						</div>
+					</li>
+				</ul>
+			</div>
+			<div class="list-block">
+				<ul>
+					<li>
+						<a id="btn-passwd-submit" class="item-link">
+							<div class="item-content">
+								<div class="item-media">
+								<span class="fa-stack">
+									<span class="fa fa-circle fa-stack-2x color-green"></span>
+									<span class="fa fa-check fa-stack-1x fa-inverse"></span>
+								</span>
+								</div>
+								<div class="item-inner">
+									<div class="item-title">Change my password</div>
+								</div>
+							</div>
+						</a>
+					</li>
+				</ul>
+			</div>
+		</div>
+	</div>
+	<!-- End: Popup -->
 
 </div>

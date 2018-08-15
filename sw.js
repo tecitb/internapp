@@ -28,6 +28,7 @@ let toCache = [
     'assets/custom/js/formdata.min.js',
     'assets/custom/js/canvas-to-blob.min.js',
     'assets/custom/js/moment.min.js',
+    'assets/custom/js/qrcode.min.js',
     'assets/custom/fonts/SourceSansPro-Bold.otf',
     'assets/custom/fonts/SourceSansPro-Regular.otf',
 
