@@ -2023,3 +2023,10 @@ h1, h2, h3, h4, h5, h6, b {
 	border-radius: 100%;
 	margin-bottom: 8px;
 }
+
+.page[data-page=relasi] .img-relation {
+	width: 40px;
+	height: 40px;
+	overflow: hidden;
+	border-radius: 100%;
+}

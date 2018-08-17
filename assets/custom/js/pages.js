@@ -439,7 +439,7 @@ myApp.onPageInit('relasi', function(page) {
             content += '<li class="swipeout" data-uid="' + card.uid[0].value + '">\n' +
                 '\t\t\t\t\t\t<div class="item-content swipeout-content" data-action="view-contact">\n' +
                 '\t\t\t\t\t\t\t<div class="item-media">\n' +
-                '\t\t\t\t\t\t\t\t<img class="img-circle" src="' + imgurl + '" data-failover="assets/custom/img/avatar.png" width="40" alt="" />\n' +
+                '\t\t\t\t\t\t\t\t<div class="img-relation"><img src="' + imgurl + '" data-failover="assets/custom/img/avatar.png" width="100%" alt="" /></div>\n' +
                 '\t\t\t\t\t\t\t</div>\n' +
                 '\t\t\t\t\t\t\t<div class="item-inner">\n' +
                 '\t\t\t\t\t\t\t\t<div class="item-title">' + card.fn[0].value + '</div>\n' +
