@@ -21,7 +21,6 @@ let toCache = [
     'assets/custom/js/themes.js',
     'assets/custom/js/vcard.js',
     'assets/custom/js/instascan.min.js',
-    'assets/custom/js/DetectRTC.min.js',
     'assets/custom/js/canvas.js',
     'assets/custom/js/downsample.js',
     'assets/custom/js/downscale.js',

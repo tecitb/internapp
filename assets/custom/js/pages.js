@@ -219,17 +219,17 @@ myApp.addRelation = async function(card) {
         myApp.relations[relationId] = card;
 
         // Adds to array
-        await localforage.setItem('relasi', /*JSON.stringify*/(myApp.relations)).then(function (value) {
+        await localforage.setItem('relasi', (myApp.relations)).then(function (value) {
             console.log("Relations added!");
         }).catch(function (err) {
             console.log(err);
         });
 
+        // Attempts to sync data
+        myApp.syncData();
+
         return card;
     }
-
-    // Attempts to sync data
-    myApp.syncData();
 };
 
 /**
@@ -448,7 +448,7 @@ myApp.onPageInit('relasi', function(page) {
                 '\t\t\t\t\t\t<div class="swipeout-actions swipeout-actions-left">\n' +
                 '\t\t\t\t\t\t\t<a href="tel:' + card.fn[0].value + '" class="external swipeout-action bg-blue">\n' +
                 '\t\t\t\t\t\t\t\t<i class="swipeout-action-icon fa fa-phone"></i>\n' +
-                '\t\t\t\t\t\t\t\t<span class="swipeout-action-label">Telepon</span>\n' +
+                '\t\t\t\t\t\t\t\t<span class="swipeout-action-label">Call</span>\n' +
                 '\t\t\t\t\t\t\t</a>\n';
 
             if(card['X-LINE'] != undefined) {
@@ -462,7 +462,7 @@ myApp.onPageInit('relasi', function(page) {
                 '\t\t\t\t\t\t<div class="swipeout-actions swipeout-actions-right">\n' +
                 '\t\t\t\t\t\t\t<a href="#" class="swipeout-action bg-red" data-action="delete-contact">\n' +
                 '\t\t\t\t\t\t\t\t<i class="swipeout-action-icon fa fa-trash-o"></i>\n' +
-                '\t\t\t\t\t\t\t\t<span class="swipeout-action-label">Hapus</span>\n' +
+                '\t\t\t\t\t\t\t\t<span class="swipeout-action-label">Remove</span>\n' +
                 '\t\t\t\t\t\t\t</a>\n' +
                 '\t\t\t\t\t\t</div>\n' +
                 '\t\t\t\t\t</li>';
@@ -639,37 +639,54 @@ myApp.onPageInit('relasi-capture', function(page) {
         handleFiles(this.files);
     });
 
+    var currentCam = 0;
+    var cams = [];
+
     $("#qrscan-error").fadeOut(0);
     setTimeout(function() {
-        $("#qrscan-error").fadeIn(250);
+        if(cams.length === 0) {
+            $("#qrscan-error").fadeIn(250);
+        }
     }, 2000);
 
-    if(DetectRTC.isWebRTCSupported) {
-        // webcam is available
-        if (Instascan != undefined) {
-            scanner = new Instascan.Scanner({video: document.getElementById('preview'), backgroundScan: false, mirror: false});
-            scanner.addListener('scan', function (content) {
-                console.log(content);
-                processVcardData(content);
-            });
-            Instascan.Camera.getCameras().then(function (cameras) {
-                if (cameras.length > 0) {
-                    scanner.start(cameras[cameras.length - 1]);
-                } else {
-                    console.error('No cameras found.');
-                    $("#qrscan-manual").fadeIn(0);
-                    $("#qrscan-webrtc").fadeOut(0);
-                }
-            }).catch(function (e) {
-                console.error(e);
-            });
-        }
+    $("#cam-action").on('click', function () {
+        if(cams.length === 0) {
+            $('#cameraInput').click();
+        } else {
+            // Switch camera
+            scanner.stop();
+            currentCam++;
+            if(currentCam >= cams.length) {
+                currentCam = 0;
+            }
 
-        $("#qrscan-webrtc").fadeIn(0);
-    } else {
-        // webcam is not available
-        $("#qrscan-webrtc").fadeOut(0);
+            scanner.start(cams[currentCam]);
+        }
+    });
+
+    // webcam is available
+    if (Instascan !== undefined) {
+        scanner = new Instascan.Scanner({video: document.getElementById('preview'), backgroundScan: false, mirror: false});
+        scanner.addListener('scan', function (content) {
+            console.log(content);
+            processVcardData(content);
+        });
+        Instascan.Camera.getCameras().then(function (cameras) {
+            if (cameras.length > 0) {
+                currentCam = cameras.length - 1;
+                cams = cameras;
+                scanner.start(cameras[currentCam]);
+                $("#qrscan-error").fadeOut(0);
+            } else {
+                console.error('No cameras found.');
+                $("#qrscan-webrtc").fadeOut(0);
+            }
+        }).catch(function (e) {
+            console.error(e);
+        });
     }
+
+    $("#qrscan-webrtc").fadeIn(0);
 
     var card;
 
