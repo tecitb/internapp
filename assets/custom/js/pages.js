@@ -1307,9 +1307,7 @@ myApp.onPageInit('user-profile', function(page) {
                     qrcode.makeCode(data.vcard);
                 }
             });
-
         });
-
     });
 
     $("#btn-passwd").on('click', function() {
@@ -1320,7 +1318,58 @@ myApp.onPageInit('user-profile', function(page) {
         myApp.popup(".popup-picture");
     });
 
-    let imgBlob;
-    let imgName;
-    let previewOpened = false;
+    var isChanging = false;
+
+    if(!isChanging) {
+        $("#btn-passwd-submit").on('click', function () {
+            var opass = $("#opass").val();
+            var npass = $("#npass").val();
+            var rnpass = $("#rnpass").val();
+
+            // Check 1: npass >= 10 chars
+            if (npass.length < 10) {
+                alert("Minimum password length is 10 characters.");
+                return;
+            }
+
+            // Check 2: npass === rnpass
+            if (npass !== rnpass) {
+                alert("Passwords do not match.");
+                return;
+            }
+
+            // Attempt to change password
+            $("#btn-passwd-submit").css("opacity", "0.5");
+            isChanging = true;
+            localforage.getItem("token").then(function (token) {
+                $.ajax({
+                    url: SERVER_URL + "/api/change-password",
+                    method: 'POST',
+                    cache: false,
+                    async: true,
+                    headers: {'Authorization': 'Bearer ' + token},
+                    data: {'old_password': $("#opass").val(), 'password': $("#npass").val()},
+                    error: function (status, xhr) {
+                        console.log(status);
+                        alert("Something was wrong when changing your password. Please try again later.");
+                        isChanging = false;
+                        $("#btn-passwd-submit").css("opacity", "1");
+                    },
+                    success: function (data, status, xhr) {
+                        isChanging = false;
+                        if (data.error !== undefined) {
+                            $("#btn-passwd-submit").css("opacity", "1");
+                            alert(data.error.text);
+                        } else {
+                            $("#btn-passwd-submit").css("opacity", "1");
+                            alert("Password successfully changed!");
+                            $("#opass").val("");
+                            $("#npass").val("");
+                            $("#rnpass").val("");
+                        }
+                    }
+                });
+            });
+        });
+    }
 });
