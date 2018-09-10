@@ -10,8 +10,10 @@
 
 body {
 	overflow-x: hidden;
-	overscroll-behavior-y: contain;
+	overflow-y: auto;
+	overscroll-behavior: contain !important;
 	font-family: SourceSansProRg, Roboto, Noto, Helvetica, Arial, sans-serif !important;
+	height: 100%;
 }
 
 h1, h2, h3, h4, h5, h6, b {

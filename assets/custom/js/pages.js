@@ -1143,19 +1143,19 @@ myApp.onPageInit('login', function(page) {
                     } else {
                         localforage.setItem('token', msg.token).then(function(value) {
                             jwt = value;
+                        }).then(function() {
+                            localforage.setItem('uid', msg.id).then(function(value) {
+                                uid = value;
+                            }).then(function() {
+                                getProfile(msg.id, msg.token);
+                                getRelations(msg.token);
+                                callback(true, "");
+                            }).catch(function(err) {
+                                console.log(err);
+                            });
                         }).catch(function(err) {
                             console.log(err);
                         });
-
-                        localforage.setItem('uid', msg.id).then(function(value) {
-                            uid = value;
-                        }).catch(function(err) {
-                            console.log(err);
-                        });
-
-                        getProfile(msg.id, msg.token);
-                        getRelations(msg.token);
-                        callback(true, "");
                     }
                 }
             });
