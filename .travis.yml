@@ -1,0 +1,13 @@
+sudo: required
+
+language: html
+
+services:
+  - docker
+
+before_script: composer install
+
+script:
+  - docker build -t tec/tecinternapp .
+  - docker tag tec/tecinternapp node2.didithilmy.com/tec/tecinternapp
+  - docker push node2.didithilmy.com/tec/tecinternapp
