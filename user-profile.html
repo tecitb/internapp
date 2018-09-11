@@ -38,6 +38,21 @@
 					  </div>
 				  </a>
 			  </li>
+			  <li>
+				  <a id="btn-dac" class="item-link">
+					  <div class="item-content">
+						  <div class="item-media">
+								<span class="fa-stack">
+									<span class="fa fa-circle fa-stack-2x color-green"></span>
+									<span class="fa fa-user-lock fa-stack-1x fa-inverse"></span>
+								</span>
+						  </div>
+						  <div class="item-inner">
+							  <div class="item-title">View my Data Access Code</div>
+						  </div>
+					  </div>
+				  </a>
+			  </li>
 		  </ul>
 	  </div>
 
@@ -88,6 +103,128 @@
 					<br />
 					<span class="profile-info" data-profile="tec_regno"></span>
 				</div>
+			</div>
+		</div>
+	</div>
+	<!-- End: Popup -->
+
+	<!-- Begin: Popup -->
+	<div class="popup popup-dac" style="background: #f7f7f7">
+		<div class="toolbar">
+			<div class="toolbar-inner">
+				<div class="left" style="padding-left: 16px;">Data Access Code</div>
+				<div class="right">
+					<a href="#" class="link close-popup">
+						<i class="material-icons">clear</i>
+					</a>
+				</div>
+			</div>
+		</div>
+		<div class="content-block">
+			<div align="center" id="profile-dac-loading" style="padding: 32px">
+				<div class="preloader"></div>
+			</div>
+			<div class="profile-dac-card">
+				<div class="intro" style="height: 50px; display: flex;">
+					<img src="assets/custom/img/key-half.svg" style="height: 50px; flex: 0;" />
+					<div style="flex: auto; padding-left: 16px;">
+						<b>Your data access code</b>
+						<div style="text-overflow: ellipsis; overflow: hidden; text-wrap: none;"><small>Give this code to your friend</small></div>
+					</div>
+				</div>
+				<div class="card-shadow">
+					<h1 align="center" id="dacode" style="font-family: monospace !important; font-weight: normal; font-size: 32px;"></h1>
+				</div>
+			</div>
+			<div id="profile-dac-help-notgenrt" style="display: none;">
+				<h2>You don't have a DAC yet</h2>
+				<p>A Data Access Code (DAC) allows your friends to obtain your profile data without having to scan your profile QR code.</p>
+				<p>Please keep your DAC confidential, since it can be used to obtain your personal information such ass your mobile number and address. If you think your DAC is compromised, you can always regenerate your DAC.</p>
+				<p>To have one, click on Generate button below.</p>
+				<button type="button" class="button button-big button-block button-fill btn-dac-generate">Generate DAC</button>
+			</div>
+		</div>
+		<div style="margin-top: 32px;" class="profile-dac-card">
+			<div class="list-block">
+				<ul>
+					<li>
+						<div class="item-content">
+							<div class="item-media">
+										<span class="fa-stack">
+											<span class="fa fa-circle fa-stack-2x color-blue"></span>
+											<span class="fa fa-clock fa-stack-1x fa-inverse"></span>
+										</span>
+							</div>
+							<div class="item-inner">
+								<div class="item-title">Last used</div>
+								<div class="item-after" id="last-used">5 hours ago</div>
+							</div>
+						</div>
+					</li>
+					<li>
+						<div class="item-content">
+							<div class="item-media">
+										<span class="fa-stack">
+											<span class="fa fa-circle fa-stack-2x color-green"></span>
+											<span class="fa fa-user fa-stack-1x fa-inverse"></span>
+										</span>
+							</div>
+							<div class="item-inner">
+								<div class="item-title">Last used by</div>
+								<div class="item-after" id="last-used-by"></div>
+							</div>
+						</div>
+					</li>
+					<li>
+						<div class="item-content">
+							<div class="item-media">
+										<span class="fa-stack">
+											<span class="fa fa-circle fa-stack-2x color-amber"></span>
+											<span class="fa fa-info fa-stack-1x fa-inverse"></span>
+										</span>
+							</div>
+							<div class="item-inner">
+								<div class="item-title">Times used</div>
+								<div class="item-after" id="times-used">6 times</div>
+							</div>
+						</div>
+					</li>
+				</ul>
+			</div>
+			<div class="content-block-title">ADMINISTRATION</div>
+			<div class="list-block">
+				<ul>
+					<li>
+						<a class="item-link btn-dac-generate">
+							<div class="item-content">
+								<div class="item-media">
+								<span class="fa-stack">
+									<span class="fa fa-circle fa-stack-2x color-purple"></span>
+									<span class="fa fa-random fa-stack-1x fa-inverse"></span>
+								</span>
+								</div>
+								<div class="item-inner">
+									<div class="item-title">Generate a new code</div>
+								</div>
+							</div>
+						</a>
+					</li>
+					<li>
+						<a id="btn-dac-refresh" class="item-link">
+							<div class="item-content">
+								<div class="item-media">
+								<span class="fa-stack">
+									<span class="fa fa-circle fa-stack-2x color-gray"></span>
+									<span class="fa fa-sync fa-stack-1x fa-inverse"></span>
+								</span>
+								</div>
+								<div class="item-inner">
+									<div class="item-title">Refresh</div>
+								</div>
+							</div>
+						</a>
+					</li>
+				</ul>
 			</div>
 		</div>
 	</div>

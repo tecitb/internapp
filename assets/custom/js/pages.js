@@ -322,6 +322,7 @@ myApp.clearStorage = async function() {
     await localforage.removeItem("token");
     await localforage.removeItem("uid");
     await localforage.removeItem("profile");
+    await localforage.removeItem("dac");
     /*await localforage.removeItem("name");
     await localforage.removeItem("nickname");
     await localforage.removeItem("tec_regno");*/
@@ -1326,6 +1327,109 @@ myApp.onPageInit('user-profile', function(page) {
             });
         });
     });
+
+    $("#btn-dac").on('click', function() {
+        myApp.popup(".popup-dac");
+        $("#profile-dac-loading").fadeIn(0);
+        $(".profile-dac-card").fadeOut(0);
+        $("#profile-dac-help-notgenrt").hide();
+
+        // Check if DAC is stored
+        localforage.getItem("dac").then(function(data) {
+            if(data !== null) {
+                // DAC is stored, display to screen
+                $("#profile-dac-loading").fadeOut(0);
+                $(".profile-dac-card").fadeIn(0);
+
+                //TODO display
+                $("#dacode").text(data.dac);
+                $("#last-used").text((data.last_used === 0 || data.last_used == null) ? 'Never' : moment.unix(data.last_used).fromNow());
+                $("#last-used-by").text(data.last_used_by_name == null ? 'Never' : data.last_used_by_name);
+                $("#times-used").text(data.used + " " + ((data.used === 1) ? "time" : "times"));
+            } else {
+                refreshDac();
+            }
+        });
+    });
+
+    $("#btn-dac-refresh").on('click', function() {
+        refreshDac();
+    });
+
+    $(".btn-dac-generate").on('click', function() {
+        generateDac();
+    });
+
+    function refreshDac() {
+        $("#profile-dac-loading").fadeIn(0);
+        $(".profile-dac-card").fadeOut(0);
+        $("#profile-dac-help-notgenrt").hide();
+
+        localforage.getItem("token").then(function (token) {
+            $.ajax({
+                url: SERVER_URL+"/api/rda/dac",
+                method: 'GET',
+                cache: false,
+                async: true,
+                headers: {'Authorization': 'Bearer ' + token},
+                error: function(status, xhr) {
+                    console.log(status);
+                    // Server unreachable, display help
+                    $("#profile-dac-loading").fadeOut(0);
+                    $("#profile-dac-help-notgenrt").show();
+                },
+                success: function(data, status, xhr) {
+                    $("#profile-dac-loading").fadeOut(0);
+
+                    if(data.error !== undefined) {
+                        if(data.error.code === 404) {
+                            // Code not generated, display help
+                            // TODO display help
+                            $("#profile-dac-help-notgenrt").show();
+                        } else {
+                            alert(data.error.text);
+                        }
+                    } else {
+                        // DAC exists, display to screen
+                        $(".profile-dac-card").fadeIn(0);
+
+                        $("#dacode").text(data.dac);
+                        $("#last-used").text((data.last_used === 0 || data.last_used == null) ? 'Never' : moment.unix(data.last_used).fromNow());
+                        $("#last-used-by").text(data.last_used_by_name == null ? 'Never' : data.last_used_by_name);
+                        $("#times-used").text(data.used + " " + ((data.used === 1) ? "time" : "times"));
+
+                        // Save to localForage
+                        localforage.setItem("dac", data);
+                    }
+                }
+            });
+        });
+    }
+
+    function generateDac() {
+        $("#profile-dac-loading").fadeIn(0);
+        $(".profile-dac-card").fadeOut(0);
+        $("#profile-dac-help-notgenrt").hide();
+
+        localforage.getItem("token").then(function (token) {
+            $.ajax({
+                url: SERVER_URL+"/api/rda/dac",
+                method: 'POST',
+                cache: false,
+                async: true,
+                headers: {'Authorization': 'Bearer ' + token},
+                error: function(status, xhr) {
+                    console.log(status);
+                    // Server unreachable, display help
+                    $("#profile-dac-loading").fadeOut(0);
+                    $("#profile-dac-help-notgenrt").show();
+                },
+                success: function(data, status, xhr) {
+                    refreshDac();
+                }
+            });
+        });
+    }
 
     $("#btn-passwd").on('click', function() {
         myApp.popup(".popup-password");
