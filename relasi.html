@@ -12,7 +12,7 @@
 				<a href="relasi_capture.html" data-panel="right" class="link">
 					<i class="material-icons">camera_alt</i>
 				</a>
-				<a href="relasi_capture.html" data-panel="right" class="link">
+				<a id="btn-relation-dac" data-panel="right" class="link">
 					<i class="material-icons">add</i>
 				</a>
 			</div>
@@ -41,5 +41,62 @@
 	<!-- End: Page Content -->
 
 	<ul class="list-index"></ul>
+
+	<!-- Begin: Popup -->
+	<div class="popup popup-relation-dac">
+		<div class="toolbar">
+			<div class="toolbar-inner">
+				<div class="left" style="padding-left: 16px;">Find by DAC</div>
+				<div class="right">
+					<a href="#" class="link close-popup">
+						<i class="material-icons">clear</i>
+					</a>
+				</div>
+			</div>
+		</div>
+		<div class="content-block">
+			<b>Please enter your friend's Data Access Code</b>
+			<p>Ask your friend to open My Profile > View my Data Access Code, and give the code to you.</p>
+		</div>
+		<div>
+			<div class="list-block no-hairlines no-hairlines-between">
+				<ul>
+					<li>
+						<div class="item-content">
+							<div class="item-media">
+								<i class="fa fa-user-lock"></i>
+							</div>
+							<div class="item-inner">
+								<div class="item-title label">Data Access Code</div>
+								<div class="item-input">
+									<input type="text" id="dac" />
+								</div>
+							</div>
+						</div>
+					</li>
+				</ul>
+			</div>
+			<div class="list-block">
+				<ul>
+					<li>
+						<a id="btn-dac-submit" class="item-link">
+							<div class="item-content">
+								<div class="item-media">
+								<span class="fa-stack">
+									<span class="fa fa-circle fa-stack-2x color-blue"></span>
+									<span class="fa fa-search fa-stack-1x fa-inverse"></span>
+								</span>
+								</div>
+								<div class="item-inner">
+									<div class="item-title">Find profile</div>
+								</div>
+							</div>
+						</a>
+					</li>
+				</ul>
+			</div>
+		</div>
+	</div>
+	<!-- End: Popup -->
 
 </div>

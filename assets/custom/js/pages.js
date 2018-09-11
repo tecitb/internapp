@@ -392,10 +392,6 @@ myApp.injectProfileData = function(profile) {
 */
 
 myApp.onPageInit('relasi', function(page) {
-    $(".close-popup").click(function() {
-        history.back();
-    });
-
     myApp.loadRelations().then(function() {
         initialize();
     });
@@ -526,6 +522,57 @@ myApp.onPageInit('relasi', function(page) {
             );
             myApp.swipeoutClose(el);
         });
+
+        $("#btn-relation-dac").on('click', function() {
+            myApp.popup(".popup-relation-dac");
+        });
+
+        $("#btn-dac-submit").on('click', function() {
+            lookupDac();
+        });
+    }
+
+    function lookupDac() {
+        localforage.getItem("token").then(function (token) {
+            $.ajax({
+                url: SERVER_URL+"/api/rda/vcard",
+                method: 'GET',
+                cache: false,
+                async: true,
+                data: {dac: $("#dac").val()},
+                headers: {'Authorization': 'Bearer ' + token},
+                error: function(status, xhr) {
+                    console.log(status);
+                    alert("Server is unreachable. Please check your internet connection.");
+                    $("#dac-loading").fadeOut(0);
+                },
+                success: function(data, status, xhr) {
+                    $("#dac-loading").fadeOut(0);
+
+                    if(data.error !== undefined) {
+                        alert(data.error.text);
+                    } else {
+                        // DAC exists, redirect
+                       processVcardData(data.vcard);
+                    }
+                }
+            });
+        });
+    }
+
+    function processVcardData(data) {
+        console.log(data);
+        if(data.startsWith("BEGIN:VCARD") && data.replace(/\n$/, "").replace(/\r$/, "").endsWith("END:VCARD")) {
+            myApp.closeModal(".popup-relation-dac");
+            myApp.crossParams['relasi-details'] = {};
+            myApp.crossParams['relasi-details']['vcard'] = encodeURIComponent(data);
+            mainView.router.load({
+                url: 'relasi_details.html',
+                pushState: true
+            });
+        } else {
+            alert("Invalid data");
+        }
     }
 });
 
