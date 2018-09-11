@@ -1222,26 +1222,6 @@ myApp.onPageInit('login', function(page) {
                 console.log(status);
             },
             success: function(msg, status, xhr) {
-                /*localforage.setItem('name', msg.name).then(function(value) {
-                    name = value;
-                    $(".profile-name").text(value);
-                }).catch(function(err) {
-                    console.log(err);
-                });
-
-                localforage.setItem('nickname', msg.nickname).then(function(value) {
-                    nickname = value;
-                }).catch(function(err) {
-                    console.log(err);
-                });
-
-                localforage.setItem('tec_regno', msg.tec_regno).then(function(value) {
-                    tecRegNo = value;
-                    $(".profile-tec-regno").text(value);
-                }).catch(function(err) {
-                    console.log(err);
-                });*/
-
                 myApp.injectProfileData(msg);
 
                 localforage.setItem('profile', msg).then(function(profile) {
